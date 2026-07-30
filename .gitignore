@@ -1,0 +1,78 @@
+﻿# ============================================================
+# Python
+# ============================================================
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ============================================================
+# Secrets and credentials
+# ============================================================
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+credentials/
+openai_api_key.txt
+
+# ============================================================
+# Confidential research material
+# ============================================================
+workspace/
+projects/
+private_data/
+manuscripts/
+reviewer_files/
+experimental_results/
+author_information/
+
+# EndNote and reference manager files
+*.enl
+*.enlx
+*.data/
+*.ris
+*.bib
+
+# ============================================================
+# Generated artifacts
+# ============================================================
+outputs/
+rendered/
+temp/
+tmp/
+logs/
+artifacts/
+*.tmp
+~$*.docx
+~$*.xlsx
+
+# ============================================================
+# Local databases
+# ============================================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================
+# IDE and operating system
+# ============================================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================================
+# Docker/local runtime
+# ============================================================
+docker-data/
+.local/
