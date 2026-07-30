@@ -1,0 +1,34 @@
+project:
+  name: "untitled-manuscript-revision"
+  manuscript_id: "UNASSIGNED"
+  journal: "UNSPECIFIED"
+  revision_round: 1
+
+languages:
+  manuscript: "English"
+  response: "English"
+
+citation_style: "journal-required"
+reviewer_count: 2
+result_status: "draft"
+
+highlight_policy:
+  reviewer_1: "Yellow"
+  reviewer_2: "Bright Green"
+  shared_and_general: "Violet"
+
+approval_gates:
+  revision_plan: true
+  novelty_claims: true
+  experimental_conclusions: true
+  statistical_interpretations: true
+  rejected_reviewer_requests: true
+  final_release: true
+
+output_names:
+  highlighted_manuscript: "manuscript_revised_highlighted.docx"
+  clean_manuscript: "manuscript_revised_clean.docx"
+  revision_workbook: "revision_tracking.xlsx"
+  response_letter: "response_to_reviewers.docx"
+  qa_report: "final_qa_report.md"
+  audit_log: "revision_audit.jsonl"
