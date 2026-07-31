@@ -6,13 +6,16 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill, Protection
 from openpyxl.utils import get_column_letter, quote_sheetname
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.workbook.defined_name import DefinedName
 
 from scholarly_revision.models.enums import (
+    ApprovalDecision,
+    ApprovalGateStatus,
+    CoverageStatus,
     ApprovalState,
     ChangeType,
     CommentCategory,
@@ -22,6 +25,8 @@ from scholarly_revision.models.enums import (
     RevisionStatus,
 )
 from scholarly_revision.models.reviewer import ReviewerComment
+from scholarly_revision.models.gap_analysis import GapAnalysisAssessment
+from scholarly_revision.models.reviewer import RevisionAction
 
 
 REVISION_WORKBOOK_SHEETS = (
@@ -57,6 +62,14 @@ REVIEWER_COMMENT_HEADERS = (
     'Author Decision',
     'Notes',
     'Manual Review Required',
+    'Coverage Status',
+    'Manuscript Evidence',
+    'Missing Elements',
+    'Required References',
+    'Required Experiments',
+    'Required Statistics',
+    'Author Decision Required',
+    'Gap Analysis Confidence',
 )
 
 REVISION_PLAN_HEADERS = (
@@ -75,8 +88,19 @@ REVISION_PLAN_HEADERS = (
     'Applied Location',
     'Verified By',
     'Verified At',
-)
 
+    'Evidence Requirements',
+    'Reference Requirements',
+    'Experiment Requirements',
+    'Statistical Requirements',
+    'Unresolved Questions',
+    'Approval Decision',
+    'Author Note',
+    'Modified Action Text',
+    'Evidence Request',
+    'Decision Timestamp',
+    'Decision Maker',
+)
 _OTHER_HEADERS = {
     'Project_Info': ('Field', 'Value'),
     'Change_Log': (
@@ -129,9 +153,11 @@ _ENUM_VALUES = {
     'ApprovalStateValues': [item.value for item in ApprovalState],
     'HighlightValues': [item.value for item in HighlightColor],
     'ChangeTypeValues': [item.value for item in ChangeType],
+
+
+    'CoverageStatusValues': [item.value for item in CoverageStatus],
+    'ApprovalDecisionValues': [item.value for item in ApprovalDecision],
 }
-
-
 def _join(values: Iterable[Any]) -> str:
     return '; '.join(str(value.value if hasattr(value, 'value') else value) for value in values)
 
@@ -194,12 +220,14 @@ def _add_validations(workbook: Workbook) -> None:
     for column, name in {
         7: 'CategoryValues', 8: 'PriorityValues', 13: 'StatusValues',
         14: 'HighlightValues', 15: 'EvidenceStatusValues',
+        19: 'CoverageStatusValues',
     }.items():
         _add_validation(reviewer, column, name)
     plan = workbook['Revision_Plan']
     for column, name in {
         3: 'ChangeTypeValues', 10: 'StatusValues',
         11: 'ApprovalStateValues', 12: 'HighlightValues',
+        21: 'ApprovalDecisionValues',
     }.items():
         _add_validation(plan, column, name)
     for sheet_name, column, name in (
@@ -250,6 +278,15 @@ def _build_dashboard(workbook: Workbook) -> None:
         ('Count by Editor/General', '=COUNTIF(Reviewer_Comments!B2:B1000,"EDITOR")+COUNTIF(Reviewer_Comments!B2:B1000,"GENERAL")'),
         ('Count requiring manual review', '=COUNTIF(Reviewer_Comments!R2:R1000,TRUE)'),
         ('Completion percentage', '=IF(B2=0,0,COUNTIF(Reviewer_Comments!M2:M1000,"VERIFIED")/B2)'),
+        ('Fully addressed', '=COUNTIF(Reviewer_Comments!S2:S1000,"FULLY_ADDRESSED")'),
+        ('Partially addressed', '=COUNTIF(Reviewer_Comments!S2:S1000,"PARTIALLY_ADDRESSED")'),
+        ('Not addressed', '=COUNTIF(Reviewer_Comments!S2:S1000,"NOT_ADDRESSED")'),
+        ('Cannot determine', '=COUNTIF(Reviewer_Comments!S2:S1000,"CANNOT_DETERMINE")'),
+        ('Pending author approval', '=COUNTIF(Revision_Plan!K2:K1000,"PENDING")'),
+        ('Approved actions', '=COUNTIF(Revision_Plan!K2:K1000,"APPROVED")'),
+        ('Evidence-dependent actions', '=COUNTIF(Revision_Plan!P2:P1000,"?*")'),
+        ('Experiment-dependent actions', '=COUNTIF(Revision_Plan!R2:R1000,"?*")'),
+        ('Approval Gate status', 'NOT_READY'),
     ]
     for metric in metrics:
         sheet.append(metric)
@@ -353,5 +390,137 @@ def build_revision_workbook(
         _format_body(sheet, headers)
 
     destination.parent.mkdir(parents=True, exist_ok=True)
+    workbook.save(destination)
+    return destination
+
+
+def _header_columns(worksheet: Any) -> dict[str, int]:
+    return {
+        str(cell.value): cell.column for cell in worksheet[1]
+        if cell.value is not None
+    }
+
+
+def _assessment_values(assessment: GapAnalysisAssessment) -> dict[str, Any]:
+    evidence = [
+        f'{item.evidence_id}: {item.description}'
+        for item in assessment.manuscript_evidence
+    ]
+    return {
+        'Interpretation': assessment.interpretation,
+        'Required Actions': _join(assessment.required_actions),
+        'Target Sections': _join(assessment.target_sections),
+        'Shared With': _join(assessment.shared_with_comments),
+        'Coverage Status': (
+            assessment.coverage_status.value if assessment.coverage_status else None
+        ),
+        'Manuscript Evidence': _join(evidence),
+        'Missing Elements': _join(assessment.missing_elements),
+        'Required References': _join(assessment.required_references),
+        'Required Experiments': _join(assessment.required_experiments),
+        'Required Statistics': _join(assessment.required_statistics),
+        'Author Decision Required': assessment.author_decision_required,
+        'Gap Analysis Confidence': assessment.confidence,
+        'Manual Review Required': assessment.manual_review_required,
+        'Evidence Status': (
+            assessment.verification_status.value
+            if assessment.verification_status else None
+        ),
+    }
+
+
+def _action_row(action: RevisionAction) -> list[Any]:
+    return [
+        action.action_id,
+        _join(action.comment_ids),
+        action.change_type.value,
+        action.target_section,
+        action.target_object,
+        action.old_text_summary,
+        action.proposed_revision_summary or action.proposed_text,
+        action.rationale,
+        _join(action.evidence_ids),
+        action.status.value,
+        action.approval_state.value,
+        action.highlight.value if action.highlight else None,
+        action.applied_location,
+        action.verified_by,
+        action.verified_at.isoformat() if action.verified_at else None,
+        _join(action.evidence_requirements),
+        _join(action.reference_requirements),
+        _join(action.experiment_requirements),
+        _join(action.statistical_requirements),
+        _join(action.unresolved_questions),
+        action.approval_decision,
+        action.author_note,
+        action.modified_action_text,
+        action.evidence_request,
+        action.decision_timestamp.isoformat() if action.decision_timestamp else None,
+        action.decision_maker,
+    ]
+
+
+def update_revision_workbook(
+    path: str | Path,
+    comments: Iterable[ReviewerComment],
+    assessments: Iterable[GapAnalysisAssessment],
+    actions: Iterable[RevisionAction],
+    gate_status: ApprovalGateStatus | str,
+) -> Path:
+    '''Update the source-of-truth workbook without altering exact comment text.'''
+
+    destination = Path(path)
+    workbook = load_workbook(destination)
+    reviewer = workbook['Reviewer_Comments']
+    reviewer_headers = _header_columns(reviewer)
+    if not set(REVIEWER_COMMENT_HEADERS).issubset(reviewer_headers):
+        raise ValueError('Revision_Master.xlsx lacks Phase 4 Reviewer_Comments columns')
+    source_comments = {comment.comment_id: comment for comment in comments}
+    rows: dict[str, int] = {}
+    for row in range(2, reviewer.max_row + 1):
+        comment_id = reviewer.cell(row, reviewer_headers['Comment ID']).value
+        if comment_id:
+            rows[str(comment_id)] = row
+    if set(rows) != set(source_comments):
+        raise ValueError('workbook comment IDs do not match reviewer inventory')
+    for comment_id, row in rows.items():
+        stored = reviewer.cell(row, reviewer_headers['Original Comment']).value
+        if stored != source_comments[comment_id].original_comment:
+            raise ValueError(f'workbook changed exact comment text for {comment_id}')
+    for assessment in assessments:
+        if assessment.comment_id not in rows:
+            raise ValueError(f'unknown workbook comment ID: {assessment.comment_id}')
+        row = rows[assessment.comment_id]
+        for header, value in _assessment_values(assessment).items():
+            reviewer.cell(row, reviewer_headers[header], value)
+
+    plan = workbook['Revision_Plan']
+    plan_headers = _header_columns(plan)
+    if not set(REVISION_PLAN_HEADERS).issubset(plan_headers):
+        raise ValueError('Revision_Master.xlsx lacks Phase 4 Revision_Plan columns')
+    if plan.max_row > 1:
+        plan.delete_rows(2, plan.max_row - 1)
+    validated_actions = [RevisionAction.model_validate(item) for item in actions]
+    for row_number, action in enumerate(validated_actions, start=2):
+        for column_number, value in enumerate(_action_row(action), start=1):
+            plan.cell(row_number, column_number, value)
+        plan._current_row = row_number
+        plan.cell(plan.max_row, plan_headers['Highlight']).fill = PatternFill(
+            'solid', fgColor=_HIGHLIGHT_HEX[action.highlight.value]
+        )
+    _format_body(reviewer, REVIEWER_COMMENT_HEADERS)
+    _format_body(plan, REVISION_PLAN_HEADERS)
+    reviewer.auto_filter.ref = (
+        f'A1:{get_column_letter(len(REVIEWER_COMMENT_HEADERS))}{max(2, reviewer.max_row)}'
+    )
+    plan.auto_filter.ref = (
+        f'A1:{get_column_letter(len(REVISION_PLAN_HEADERS))}{max(2, plan.max_row)}'
+    )
+    dashboard = workbook['Dashboard']
+    status_value = gate_status.value if hasattr(gate_status, 'value') else str(gate_status)
+    for row in range(1, dashboard.max_row + 1):
+        if dashboard.cell(row, 1).value == 'Approval Gate status':
+            dashboard.cell(row, 2, status_value)
+            break
     workbook.save(destination)
     return destination

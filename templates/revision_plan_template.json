@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "generated_at": null,
+  "source_gap_analysis_hash": null,
+  "manuscript_modified": false,
+  "approval_gate_status": "NOT_READY",
+  "actions": [
+    {
+      "action_id": "ACT-0001",
+      "comment_ids": ["R1-C01"],
+      "change_type": "GENERAL_CORRECTION",
+      "target_section": "UNSPECIFIED - MANUAL REVIEW REQUIRED",
+      "target_object": null,
+      "proposed_revision_summary": null,
+      "rationale": null,
+      "evidence_requirements": [],
+      "reference_requirements": [],
+      "experiment_requirements": [],
+      "statistical_requirements": [],
+      "status": "PLANNED",
+      "approval_state": "PENDING",
+      "highlight": "YELLOW",
+      "unresolved_questions": [],
+      "approval_decision": null,
+      "author_note": null,
+      "modified_action_text": null,
+      "evidence_request": null,
+      "decision_timestamp": null,
+      "decision_maker": null,
+      "applied_location": null,
+      "verified_by": null,
+      "verified_at": null
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "package_status": "BLANK_SEMANTIC_ASSESSMENTS",
+  "project_metadata": {},
+  "manuscript_source": {
+    "file_name": null,
+    "sha256": null,
+    "modified": false
+  },
+  "reviewer_comments": [],
+  "manuscript_outline": [],
+  "manuscript_structural_elements": [],
+  "reference_section_boundary": null,
+  "assessments": [
+    {
+      "comment_id": "R1-C01",
+      "original_comment": "ANONYMOUS_SYNTHETIC_COMMENT_ONLY",
+      "coverage_status": null,
+      "interpretation": null,
+      "manuscript_evidence": [],
+      "missing_elements": [],
+      "required_actions": [],
+      "target_sections": [],
+      "target_objects": [],
+      "required_references": [],
+      "required_experiments": [],
+      "required_statistics": [],
+      "author_decision_required": null,
+      "shared_with_comments": [],
+      "risks": [],
+      "confidence": null,
+      "manual_review_required": null,
+      "verification_status": null,
+      "experiment_completion_claimed": false,
+      "experiment_evidence_ids": [],
+      "verified_locations": [],
+      "action_proposals": []
+    }
+  ]
+}

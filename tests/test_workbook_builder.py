@@ -29,7 +29,7 @@ def test_exact_sheet_names_and_header_rows(tmp_path: Path) -> None:
     assert tuple(cell.value for cell in reviewer[1]) == REVIEWER_COMMENT_HEADERS
     assert tuple(cell.value for cell in plan[1]) == REVISION_PLAN_HEADERS
     assert reviewer.freeze_panes == 'A2'
-    assert reviewer.auto_filter.ref.startswith('A1:R')
+    assert reviewer.auto_filter.ref.startswith('A1:Z')
 
 
 def test_workbook_uses_exact_policy_colors(tmp_path: Path) -> None:

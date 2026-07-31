@@ -186,11 +186,23 @@ class RevisionAction(BaseModel):
     target_object: str | None = None
     old_text_summary: str | None = None
     proposed_text: str | None = None
+    proposed_revision_summary: str | None = None
     rationale: str = Field(min_length=1)
     evidence_ids: list[str] = Field(default_factory=list)
+    evidence_requirements: list[str] = Field(default_factory=list)
+    reference_requirements: list[str] = Field(default_factory=list)
+    experiment_requirements: list[str] = Field(default_factory=list)
+    statistical_requirements: list[str] = Field(default_factory=list)
     status: RevisionStatus = RevisionStatus.PLANNED
     approval_state: ApprovalState = ApprovalState.PENDING
     highlight: HighlightColor | None = None
+    unresolved_questions: list[str] = Field(default_factory=list)
+    approval_decision: str | None = None
+    author_note: str | None = None
+    modified_action_text: str | None = None
+    evidence_request: str | None = None
+    decision_timestamp: datetime | None = None
+    decision_maker: str | None = None
     applied_location: str | None = None
     verified_by: str | None = None
     verified_at: datetime | None = None

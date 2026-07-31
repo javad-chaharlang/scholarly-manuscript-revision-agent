@@ -73,9 +73,33 @@
       "default": null,
       "title": "Applied Location"
     },
+    "approval_decision": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approval Decision"
+    },
     "approval_state": {
       "$ref": "#/$defs/ApprovalState",
       "default": "PENDING"
+    },
+    "author_note": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Author Note"
     },
     "change_type": {
       "$ref": "#/$defs/ChangeType"
@@ -88,11 +112,62 @@
       "title": "Comment Ids",
       "type": "array"
     },
+    "decision_maker": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Maker"
+    },
+    "decision_timestamp": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Timestamp"
+    },
     "evidence_ids": {
       "items": {
         "type": "string"
       },
       "title": "Evidence Ids",
+      "type": "array"
+    },
+    "evidence_request": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Evidence Request"
+    },
+    "evidence_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Requirements",
+      "type": "array"
+    },
+    "experiment_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Experiment Requirements",
       "type": "array"
     },
     "highlight": {
@@ -106,6 +181,18 @@
       ],
       "default": null
     },
+    "modified_action_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Modified Action Text"
+    },
     "old_text_summary": {
       "anyOf": [
         {
@@ -117,6 +204,18 @@
       ],
       "default": null,
       "title": "Old Text Summary"
+    },
+    "proposed_revision_summary": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proposed Revision Summary"
     },
     "proposed_text": {
       "anyOf": [
@@ -134,6 +233,20 @@
       "minLength": 1,
       "title": "Rationale",
       "type": "string"
+    },
+    "reference_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reference Requirements",
+      "type": "array"
+    },
+    "statistical_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Statistical Requirements",
+      "type": "array"
     },
     "status": {
       "$ref": "#/$defs/RevisionStatus",
@@ -155,6 +268,13 @@
       "minLength": 1,
       "title": "Target Section",
       "type": "string"
+    },
+    "unresolved_questions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unresolved Questions",
+      "type": "array"
     },
     "verified_at": {
       "anyOf": [
