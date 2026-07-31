@@ -1,0 +1,18 @@
+app:
+  title: Scholarly Manuscript Revision
+  address: localhost
+  port: 8501
+  headless: false
+  gather_usage_stats: false
+privacy:
+  require_external_workspace: true
+  log_confidential_text: false
+  display_secrets: false
+workflow:
+  infer_approvals: false
+  require_destructive_confirmation: true
+  require_final_release_confirmation: true
+highlight_policy:
+  reviewer_1: YELLOW
+  reviewer_2: BRIGHT_GREEN
+  shared_and_general: VIOLET

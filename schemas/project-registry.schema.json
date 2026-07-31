@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "ProjectRegistryEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "manuscript_id": {
+          "minLength": 1,
+          "title": "Manuscript Id",
+          "type": "string"
+        },
+        "project_id": {
+          "minLength": 1,
+          "title": "Project Id",
+          "type": "string"
+        },
+        "project_name": {
+          "minLength": 1,
+          "title": "Project Name",
+          "type": "string"
+        },
+        "project_root": {
+          "minLength": 1,
+          "title": "Project Root",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/ProjectState"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id",
+        "project_name",
+        "manuscript_id",
+        "project_root",
+        "state",
+        "created_at",
+        "updated_at"
+      ],
+      "title": "ProjectRegistryEntry",
+      "type": "object"
+    },
+    "ProjectState": {
+      "enum": [
+        "NEW",
+        "INTAKE_PENDING",
+        "INTAKE_REVIEW",
+        "GAP_ANALYSIS_PENDING",
+        "PLAN_APPROVAL",
+        "REVISION_DRAFTING",
+        "TEXT_APPROVAL",
+        "REVISION_APPLICATION",
+        "SCIENTIFIC_QA",
+        "RESPONSE_PREPARATION",
+        "VISUAL_QA",
+        "READY_FOR_RELEASE",
+        "RELEASED",
+        "BLOCKED"
+      ],
+      "title": "ProjectState",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "projects": {
+      "items": {
+        "$ref": "#/$defs/ProjectRegistryEntry"
+      },
+      "title": "Projects",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "title": "ProjectRegistryFile",
+  "type": "object"
+}

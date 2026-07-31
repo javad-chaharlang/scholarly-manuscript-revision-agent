@@ -8,6 +8,10 @@ from scholarly_revision.models.gap_analysis import (
     ManuscriptEvidence,
 )
 from scholarly_revision.models.project import ProjectManifest
+from scholarly_revision.models.project_state import (
+    ProjectAuditEvent, ProjectRegistryEntry, ProjectRegistryFile,
+    ProjectState, ProjectStateRecord,
+)
 from scholarly_revision.models.qa import QAFinding
 from scholarly_revision.models.reference import ReferenceRecord
 from scholarly_revision.models.reviewer import ReviewerComment, RevisionAction
@@ -39,6 +43,11 @@ __all__ = [
     'EvidenceRecord',
     'ExperimentalResultRecord',
     'ProjectManifest',
+    'ProjectAuditEvent',
+    'ProjectRegistryEntry',
+    'ProjectRegistryFile',
+    'ProjectState',
+    'ProjectStateRecord',
     'GapAnalysisAssessment',
     'ManuscriptEvidence',
     'QAFinding',

@@ -14,6 +14,8 @@ from scholarly_revision.services.project_workspace import (
     safe_project_slug,
     sha256_file,
 )
+from scholarly_revision.services.project_registry import ProjectRegistry
+from scholarly_revision.services.project_state_service import ProjectStateService
 
 __all__ = [
     'InputFileRecord',
@@ -27,6 +29,8 @@ __all__ = [
     'save_project_manifest',
     'sha256_file',
     'validate_default_project_config',
+    'ProjectRegistry',
+    'ProjectStateService',
 ]
 from scholarly_revision.services.scientific_qa_service import (
     ScientificQAService, ScientificQARun, load_qa_config, run_scientific_qa,

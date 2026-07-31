@@ -86,6 +86,10 @@ class InputFiles(BaseModel):
     reference_sources: list[str] = Field(default_factory=list)
     experimental_records: list[str] = Field(default_factory=list)
     prior_round_materials: list[str] = Field(default_factory=list)
+    editor_letter: str | None = None
+    result_registry: str | None = None
+    reference_registry: str | None = None
+    response_sample: str | None = None
 
 
 class OutputNames(BaseModel):

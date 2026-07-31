@@ -69,6 +69,18 @@
       "additionalProperties": false,
       "description": "File identities only; manuscript or reviewer contents are never stored here.",
       "properties": {
+        "editor_letter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Editor Letter"
+        },
         "experimental_records": {
           "items": {
             "type": "string"
@@ -107,12 +119,48 @@
           "title": "Prior Round Materials",
           "type": "array"
         },
+        "reference_registry": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reference Registry"
+        },
         "reference_sources": {
           "items": {
             "type": "string"
           },
           "title": "Reference Sources",
           "type": "array"
+        },
+        "response_sample": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Response Sample"
+        },
+        "result_registry": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result Registry"
         },
         "reviewer_comments": {
           "items": {

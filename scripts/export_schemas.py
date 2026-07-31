@@ -20,6 +20,8 @@ from scholarly_revision.models import (  # noqa: E402
     ScientificQAReport,
     EvidenceRecord,
     ExperimentalResultRecord,
+    ProjectRegistryFile,
+    ProjectStateRecord,
     ProjectManifest,
     QAFinding,
     ReferenceRecord,
@@ -40,6 +42,8 @@ from scholarly_revision.models import (  # noqa: E402
 ModelType: TypeAlias = type[BaseModel]
 SCHEMA_MODELS: tuple[tuple[str, ModelType], ...] = (
     ('project-manifest.schema.json', ProjectManifest),
+    ('project-state.schema.json', ProjectStateRecord),
+    ('project-registry.schema.json', ProjectRegistryFile),
     ('reviewer-comment.schema.json', ReviewerComment),
     ('revision-action.schema.json', RevisionAction),
     ('revision-draft.schema.json', RevisionDraft),
