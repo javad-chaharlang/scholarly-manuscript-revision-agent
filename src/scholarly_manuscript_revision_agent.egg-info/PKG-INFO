@@ -1,9 +1,0 @@
-Metadata-Version: 2.4
-Name: scholarly-manuscript-revision-agent
-Version: 0.2.0
-Summary: Deterministic domain models for source-grounded scholarly manuscript revision
-Requires-Python: >=3.11
-Requires-Dist: pydantic<3,>=2.0
-Requires-Dist: PyYAML<7,>=6.0
-Provides-Extra: dev
-Requires-Dist: pytest<10,>=8; extra == "dev"

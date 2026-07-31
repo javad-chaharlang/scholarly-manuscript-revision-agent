@@ -1,5 +1,0 @@
-pydantic<3,>=2.0
-PyYAML<7,>=6.0
-
-[dev]
-pytest<10,>=8

@@ -76,3 +76,6 @@ desktop.ini
 # ============================================================
 docker-data/
 .local/
+
+# Python packaging metadata
+*.egg-info/
