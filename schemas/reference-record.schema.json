@@ -1,0 +1,176 @@
+{
+  "$defs": {
+    "HighlightColor": {
+      "enum": [
+        "YELLOW",
+        "BRIGHT_GREEN",
+        "VIOLET"
+      ],
+      "title": "HighlightColor",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authors": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Authors",
+      "type": "array"
+    },
+    "bibliographic_verified": {
+      "default": false,
+      "title": "Bibliographic Verified",
+      "type": "boolean"
+    },
+    "doi": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Doi"
+    },
+    "endnote_verified": {
+      "default": false,
+      "title": "Endnote Verified",
+      "type": "boolean"
+    },
+    "final_number": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Final Number"
+    },
+    "first_citation_location": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "First Citation Location"
+    },
+    "highlight": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HighlightColor"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "journal_or_source": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Journal Or Source"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "reason_added": {
+      "minLength": 1,
+      "title": "Reason Added",
+      "type": "string"
+    },
+    "reference_id": {
+      "minLength": 1,
+      "title": "Reference Id",
+      "type": "string"
+    },
+    "requested_by_comment_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Requested By Comment Ids",
+      "type": "array"
+    },
+    "temporary_number": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Temporary Number"
+    },
+    "title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Title"
+    },
+    "url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Url"
+    },
+    "year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Year"
+    }
+  },
+  "required": [
+    "reference_id",
+    "reason_added"
+  ],
+  "title": "ReferenceRecord",
+  "type": "object"
+}

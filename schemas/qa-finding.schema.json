@@ -1,0 +1,133 @@
+{
+  "$defs": {
+    "QACategory": {
+      "enum": [
+        "FRONT_MATTER",
+        "HEADINGS",
+        "FIGURES",
+        "TABLES",
+        "EQUATIONS",
+        "CITATIONS",
+        "REFERENCES",
+        "NUMERICAL_CONSISTENCY",
+        "HIGHLIGHTS",
+        "PAGE_LAYOUT",
+        "RESPONSE_LETTER_CONSISTENCY",
+        "CONFIDENTIALITY"
+      ],
+      "title": "QACategory",
+      "type": "string"
+    },
+    "QASeverity": {
+      "enum": [
+        "CRITICAL",
+        "MAJOR",
+        "MINOR",
+        "INFORMATIONAL"
+      ],
+      "title": "QASeverity",
+      "type": "string"
+    },
+    "QAStatus": {
+      "enum": [
+        "OPEN",
+        "RESOLVED",
+        "VERIFIED",
+        "WAIVED"
+      ],
+      "title": "QAStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "$ref": "#/$defs/QACategory"
+    },
+    "description": {
+      "minLength": 1,
+      "title": "Description",
+      "type": "string"
+    },
+    "file_name": {
+      "minLength": 1,
+      "title": "File Name",
+      "type": "string"
+    },
+    "finding_id": {
+      "minLength": 1,
+      "title": "Finding Id",
+      "type": "string"
+    },
+    "object_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Object Id"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Page"
+    },
+    "resolution": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Resolution"
+    },
+    "section": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section"
+    },
+    "severity": {
+      "$ref": "#/$defs/QASeverity"
+    },
+    "status": {
+      "$ref": "#/$defs/QAStatus",
+      "default": "OPEN"
+    },
+    "verified": {
+      "default": false,
+      "title": "Verified",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "finding_id",
+    "category",
+    "severity",
+    "description",
+    "file_name"
+  ],
+  "title": "QAFinding",
+  "type": "object"
+}

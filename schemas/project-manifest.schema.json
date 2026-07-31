@@ -1,0 +1,284 @@
+{
+  "$defs": {
+    "ApprovalGates": {
+      "additionalProperties": false,
+      "properties": {
+        "experimental_conclusions": {
+          "default": true,
+          "title": "Experimental Conclusions",
+          "type": "boolean"
+        },
+        "final_release": {
+          "default": true,
+          "title": "Final Release",
+          "type": "boolean"
+        },
+        "novelty_claims": {
+          "default": true,
+          "title": "Novelty Claims",
+          "type": "boolean"
+        },
+        "rejected_reviewer_requests": {
+          "default": true,
+          "title": "Rejected Reviewer Requests",
+          "type": "boolean"
+        },
+        "revision_plan": {
+          "default": true,
+          "title": "Revision Plan",
+          "type": "boolean"
+        },
+        "statistical_interpretations": {
+          "default": true,
+          "title": "Statistical Interpretations",
+          "type": "boolean"
+        }
+      },
+      "title": "ApprovalGates",
+      "type": "object"
+    },
+    "HighlightColor": {
+      "enum": [
+        "YELLOW",
+        "BRIGHT_GREEN",
+        "VIOLET"
+      ],
+      "title": "HighlightColor",
+      "type": "string"
+    },
+    "HighlightPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "reviewer_1": {
+          "$ref": "#/$defs/HighlightColor",
+          "default": "YELLOW"
+        },
+        "reviewer_2": {
+          "$ref": "#/$defs/HighlightColor",
+          "default": "BRIGHT_GREEN"
+        },
+        "shared_and_general": {
+          "$ref": "#/$defs/HighlightColor",
+          "default": "VIOLET"
+        }
+      },
+      "title": "HighlightPolicy",
+      "type": "object"
+    },
+    "InputFiles": {
+      "additionalProperties": false,
+      "description": "File identities only; manuscript or reviewer contents are never stored here.",
+      "properties": {
+        "experimental_records": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Experimental Records",
+          "type": "array"
+        },
+        "journal_instructions": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Journal Instructions"
+        },
+        "manuscript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manuscript"
+        },
+        "prior_round_materials": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Prior Round Materials",
+          "type": "array"
+        },
+        "reference_sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reference Sources",
+          "type": "array"
+        },
+        "reviewer_comments": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reviewer Comments",
+          "type": "array"
+        }
+      },
+      "title": "InputFiles",
+      "type": "object"
+    },
+    "OutputNames": {
+      "additionalProperties": false,
+      "properties": {
+        "audit_log": {
+          "title": "Audit Log",
+          "type": "string"
+        },
+        "clean_manuscript": {
+          "title": "Clean Manuscript",
+          "type": "string"
+        },
+        "highlighted_manuscript": {
+          "title": "Highlighted Manuscript",
+          "type": "string"
+        },
+        "qa_report": {
+          "title": "Qa Report",
+          "type": "string"
+        },
+        "response_letter": {
+          "title": "Response Letter",
+          "type": "string"
+        },
+        "revision_workbook": {
+          "title": "Revision Workbook",
+          "type": "string"
+        }
+      },
+      "required": [
+        "highlighted_manuscript",
+        "clean_manuscript",
+        "revision_workbook",
+        "response_letter",
+        "qa_report",
+        "audit_log"
+      ],
+      "title": "OutputNames",
+      "type": "object"
+    },
+    "ResultStatus": {
+      "enum": [
+        "NOT_APPLICABLE",
+        "DRAFT",
+        "UNVERIFIED",
+        "VERIFIED",
+        "FINAL"
+      ],
+      "title": "ResultStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Non-confidential metadata governing one revision project.",
+  "properties": {
+    "approval_gates": {
+      "$ref": "#/$defs/ApprovalGates"
+    },
+    "citation_style": {
+      "minLength": 1,
+      "title": "Citation Style",
+      "type": "string"
+    },
+    "created_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Created At"
+    },
+    "highlight_policy": {
+      "$ref": "#/$defs/HighlightPolicy"
+    },
+    "input_files": {
+      "$ref": "#/$defs/InputFiles"
+    },
+    "journal": {
+      "minLength": 1,
+      "title": "Journal",
+      "type": "string"
+    },
+    "manuscript_id": {
+      "minLength": 1,
+      "title": "Manuscript Id",
+      "type": "string"
+    },
+    "manuscript_language": {
+      "minLength": 1,
+      "title": "Manuscript Language",
+      "type": "string"
+    },
+    "manuscript_title": {
+      "default": "UNSPECIFIED",
+      "minLength": 1,
+      "title": "Manuscript Title",
+      "type": "string"
+    },
+    "output_names": {
+      "$ref": "#/$defs/OutputNames"
+    },
+    "project_name": {
+      "minLength": 1,
+      "title": "Project Name",
+      "type": "string"
+    },
+    "response_language": {
+      "minLength": 1,
+      "title": "Response Language",
+      "type": "string"
+    },
+    "result_status": {
+      "$ref": "#/$defs/ResultStatus"
+    },
+    "reviewer_count": {
+      "minimum": 1,
+      "title": "Reviewer Count",
+      "type": "integer"
+    },
+    "revision_round": {
+      "minimum": 1,
+      "title": "Revision Round",
+      "type": "integer"
+    },
+    "updated_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Updated At"
+    }
+  },
+  "required": [
+    "project_name",
+    "manuscript_id",
+    "journal",
+    "revision_round",
+    "manuscript_language",
+    "response_language",
+    "citation_style",
+    "reviewer_count",
+    "result_status",
+    "output_names"
+  ],
+  "title": "ProjectManifest",
+  "type": "object"
+}

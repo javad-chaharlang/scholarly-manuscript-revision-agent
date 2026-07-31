@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "EvidenceStatus": {
+      "enum": [
+        "NOT_REQUIRED",
+        "REQUIRED",
+        "MISSING",
+        "PROVIDED",
+        "VERIFIED",
+        "REJECTED"
+      ],
+      "title": "EvidenceStatus",
+      "type": "string"
+    },
+    "ResultStatus": {
+      "enum": [
+        "NOT_APPLICABLE",
+        "DRAFT",
+        "UNVERIFIED",
+        "VERIFIED",
+        "FINAL"
+      ],
+      "title": "ResultStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "configuration": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Configuration"
+    },
+    "dataset": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Dataset"
+    },
+    "evidence_status": {
+      "$ref": "#/$defs/EvidenceStatus",
+      "default": "NOT_REQUIRED"
+    },
+    "metric_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metric Name"
+    },
+    "recomputed": {
+      "default": false,
+      "title": "Recomputed",
+      "type": "boolean"
+    },
+    "result_id": {
+      "minLength": 1,
+      "title": "Result Id",
+      "type": "string"
+    },
+    "result_status": {
+      "$ref": "#/$defs/ResultStatus",
+      "default": "DRAFT"
+    },
+    "source_cell_or_range": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Cell Or Range"
+    },
+    "source_file": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source File"
+    },
+    "source_sheet": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Sheet"
+    },
+    "unit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Unit"
+    },
+    "used_in_sections": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Used In Sections",
+      "type": "array"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Value"
+    },
+    "verification_notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verification Notes"
+    }
+  },
+  "required": [
+    "result_id"
+  ],
+  "title": "ExperimentalResultRecord",
+  "type": "object"
+}

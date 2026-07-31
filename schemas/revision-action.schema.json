@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "ApprovalState": {
+      "enum": [
+        "NOT_REQUIRED",
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+        "REVISION_REQUESTED"
+      ],
+      "title": "ApprovalState",
+      "type": "string"
+    },
+    "ChangeType": {
+      "enum": [
+        "ADDITION",
+        "REWRITE",
+        "DELETION",
+        "RELOCATION",
+        "REFERENCE_ADDITION",
+        "REFERENCE_CORRECTION",
+        "FIGURE_REVISION",
+        "TABLE_REVISION",
+        "EQUATION_REVISION",
+        "FORMATTING",
+        "EXPERIMENTAL_ADDITION",
+        "STATISTICAL_ANALYSIS",
+        "GENERAL_CORRECTION"
+      ],
+      "title": "ChangeType",
+      "type": "string"
+    },
+    "HighlightColor": {
+      "enum": [
+        "YELLOW",
+        "BRIGHT_GREEN",
+        "VIOLET"
+      ],
+      "title": "HighlightColor",
+      "type": "string"
+    },
+    "RevisionStatus": {
+      "enum": [
+        "NOT_STARTED",
+        "ANALYZED",
+        "PLANNED",
+        "DRAFTED",
+        "APPLIED",
+        "VERIFIED",
+        "DEFERRED",
+        "NOT_APPLICABLE"
+      ],
+      "title": "RevisionStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "minLength": 1,
+      "title": "Action Id",
+      "type": "string"
+    },
+    "applied_location": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Applied Location"
+    },
+    "approval_state": {
+      "$ref": "#/$defs/ApprovalState",
+      "default": "PENDING"
+    },
+    "change_type": {
+      "$ref": "#/$defs/ChangeType"
+    },
+    "comment_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Comment Ids",
+      "type": "array"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "highlight": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HighlightColor"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "old_text_summary": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Old Text Summary"
+    },
+    "proposed_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proposed Text"
+    },
+    "rationale": {
+      "minLength": 1,
+      "title": "Rationale",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/RevisionStatus",
+      "default": "PLANNED"
+    },
+    "target_object": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Object"
+    },
+    "target_section": {
+      "minLength": 1,
+      "title": "Target Section",
+      "type": "string"
+    },
+    "verified_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verified At"
+    },
+    "verified_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verified By"
+    }
+  },
+  "required": [
+    "action_id",
+    "comment_ids",
+    "change_type",
+    "target_section",
+    "rationale"
+  ],
+  "title": "RevisionAction",
+  "type": "object"
+}

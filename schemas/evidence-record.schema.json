@@ -1,0 +1,107 @@
+{
+  "$defs": {
+    "EvidenceStatus": {
+      "enum": [
+        "NOT_REQUIRED",
+        "REQUIRED",
+        "MISSING",
+        "PROVIDED",
+        "VERIFIED",
+        "REJECTED"
+      ],
+      "title": "EvidenceStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "evidence_id": {
+      "minLength": 1,
+      "title": "Evidence Id",
+      "type": "string"
+    },
+    "evidence_type": {
+      "minLength": 1,
+      "title": "Evidence Type",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "related_comment_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Related Comment Ids",
+      "type": "array"
+    },
+    "source_description": {
+      "minLength": 1,
+      "title": "Source Description",
+      "type": "string"
+    },
+    "source_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Path"
+    },
+    "status": {
+      "$ref": "#/$defs/EvidenceStatus",
+      "default": "PROVIDED"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "verified_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verified At"
+    },
+    "verified_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verified By"
+    }
+  },
+  "required": [
+    "evidence_id",
+    "evidence_type",
+    "title",
+    "source_description"
+  ],
+  "title": "EvidenceRecord",
+  "type": "object"
+}

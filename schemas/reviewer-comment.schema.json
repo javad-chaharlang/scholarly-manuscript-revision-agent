@@ -1,0 +1,225 @@
+{
+  "$defs": {
+    "CommentCategory": {
+      "enum": [
+        "ABSTRACT",
+        "INTRODUCTION",
+        "LITERATURE",
+        "NOVELTY",
+        "METHODOLOGY",
+        "MATHEMATICAL_FORMULATION",
+        "EXPERIMENTAL_DESIGN",
+        "STATISTICS",
+        "RESULTS",
+        "COMPARISON",
+        "ROBUSTNESS",
+        "STEGANALYSIS",
+        "COMPLEXITY",
+        "IMPLEMENTATION",
+        "FIGURES",
+        "TABLES",
+        "EQUATIONS",
+        "REFERENCES",
+        "LANGUAGE",
+        "FORMATTING",
+        "LIMITATIONS",
+        "CONCLUSION",
+        "GENERAL"
+      ],
+      "title": "CommentCategory",
+      "type": "string"
+    },
+    "CommentPriority": {
+      "enum": [
+        "CRITICAL",
+        "MAJOR",
+        "MINOR"
+      ],
+      "title": "CommentPriority",
+      "type": "string"
+    },
+    "EvidenceStatus": {
+      "enum": [
+        "NOT_REQUIRED",
+        "REQUIRED",
+        "MISSING",
+        "PROVIDED",
+        "VERIFIED",
+        "REJECTED"
+      ],
+      "title": "EvidenceStatus",
+      "type": "string"
+    },
+    "HighlightColor": {
+      "enum": [
+        "YELLOW",
+        "BRIGHT_GREEN",
+        "VIOLET"
+      ],
+      "title": "HighlightColor",
+      "type": "string"
+    },
+    "ReviewerSource": {
+      "enum": [
+        "EDITOR",
+        "REVIEWER",
+        "GENERAL"
+      ],
+      "title": "ReviewerSource",
+      "type": "string"
+    },
+    "RevisionStatus": {
+      "enum": [
+        "NOT_STARTED",
+        "ANALYZED",
+        "PLANNED",
+        "DRAFTED",
+        "APPLIED",
+        "VERIFIED",
+        "DEFERRED",
+        "NOT_APPLICABLE"
+      ],
+      "title": "RevisionStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "author_decision": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Author Decision"
+    },
+    "categories": {
+      "items": {
+        "$ref": "#/$defs/CommentCategory"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "comment_id": {
+      "title": "Comment Id",
+      "type": "string"
+    },
+    "evidence_status": {
+      "$ref": "#/$defs/EvidenceStatus",
+      "default": "NOT_REQUIRED"
+    },
+    "highlight": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HighlightColor"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "interpretation": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpretation"
+    },
+    "normalized_comment": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Normalized Comment"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "original_comment": {
+      "title": "Original Comment",
+      "type": "string"
+    },
+    "priority": {
+      "$ref": "#/$defs/CommentPriority",
+      "default": "MAJOR"
+    },
+    "required_actions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Actions",
+      "type": "array"
+    },
+    "reviewer_number": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reviewer Number"
+    },
+    "reviewer_source": {
+      "$ref": "#/$defs/ReviewerSource"
+    },
+    "sequence_number": {
+      "minimum": 1,
+      "title": "Sequence Number",
+      "type": "integer"
+    },
+    "shared_with": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Shared With",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/RevisionStatus",
+      "default": "NOT_STARTED"
+    },
+    "target_sections": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Sections",
+      "type": "array"
+    }
+  },
+  "required": [
+    "comment_id",
+    "reviewer_source",
+    "sequence_number",
+    "original_comment"
+  ],
+  "title": "ReviewerComment",
+  "type": "object"
+}

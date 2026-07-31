@@ -1,0 +1,81 @@
+{
+  "$defs": {
+    "HighlightColor": {
+      "enum": [
+        "YELLOW",
+        "BRIGHT_GREEN",
+        "VIOLET"
+      ],
+      "title": "HighlightColor",
+      "type": "string"
+    },
+    "RevisionStatus": {
+      "enum": [
+        "NOT_STARTED",
+        "ANALYZED",
+        "PLANNED",
+        "DRAFTED",
+        "APPLIED",
+        "VERIFIED",
+        "DEFERRED",
+        "NOT_APPLICABLE"
+      ],
+      "title": "RevisionStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "author_response": {
+      "minLength": 1,
+      "title": "Author Response",
+      "type": "string"
+    },
+    "changes_made": {
+      "default": "",
+      "title": "Changes Made",
+      "type": "string"
+    },
+    "comment_id": {
+      "title": "Comment Id",
+      "type": "string"
+    },
+    "exact_comment": {
+      "title": "Exact Comment",
+      "type": "string"
+    },
+    "highlight": {
+      "$ref": "#/$defs/HighlightColor"
+    },
+    "location": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Location"
+    },
+    "response_entry_id": {
+      "minLength": 1,
+      "title": "Response Entry Id",
+      "type": "string"
+    },
+    "verification_status": {
+      "$ref": "#/$defs/RevisionStatus",
+      "default": "DRAFTED"
+    }
+  },
+  "required": [
+    "response_entry_id",
+    "comment_id",
+    "exact_comment",
+    "author_response",
+    "highlight"
+  ],
+  "title": "ResponseLetterEntry",
+  "type": "object"
+}
