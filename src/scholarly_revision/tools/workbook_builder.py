@@ -29,6 +29,8 @@ from scholarly_revision.models.reviewer import ReviewerComment
 from scholarly_revision.models.gap_analysis import GapAnalysisAssessment
 from scholarly_revision.models.reviewer import RevisionAction
 from scholarly_revision.models.revision_draft import ChangeRecord, RevisionDraft
+from scholarly_revision.models.release import ConsistencyFinding
+from scholarly_revision.models.response_package import ResponsePackage
 
 
 REVISION_WORKBOOK_SHEETS = (
@@ -150,6 +152,12 @@ _OTHER_HEADERS = {
         'Section', 'Object ID', 'Status', 'Resolution', 'Verified',
     ),
 }
+
+FINAL_RESPONSE_MAP_HEADERS = (
+    'Response Entry ID', 'Comment ID', 'Response Status', 'Change IDs',
+    'Evidence IDs', 'Reference IDs', 'Verified Location', 'Highlight',
+    'Author Approval', 'Verification Status', 'Unresolved Issues',
+)
 
 _HIGHLIGHT_HEX = {
     HighlightColor.YELLOW.value: 'FFFFFF00',
@@ -741,5 +749,137 @@ def update_revision_execution_workbook(
     _format_body(reviewer, REVIEWER_COMMENT_HEADERS)
     _format_body(plan, REVISION_PLAN_HEADERS)
     _format_body(change_sheet, _OTHER_HEADERS['Change_Log'])
+    workbook.save(destination)
+    return destination
+
+
+def _append_missing_headers(worksheet: Any, headers: tuple[str, ...]) -> dict[str, int]:
+    current = _header_columns(worksheet)
+    for header in headers:
+        if header not in current:
+            worksheet.cell(1, worksheet.max_column + 1, header)
+            current = _header_columns(worksheet)
+    _format_header(worksheet, tuple(
+        str(cell.value) for cell in worksheet[1] if cell.value is not None
+    ))
+    return current
+
+
+def update_finalization_workbook(
+    path: str | Path,
+    package: ResponsePackage | dict,
+    findings: Iterable[ConsistencyFinding | dict],
+    readiness: str,
+) -> Path:
+    '''Synchronize Phase 7 fields without overwriting author notes.'''
+
+    destination = Path(path)
+    response_package = ResponsePackage.model_validate(package)
+    consistency = [ConsistencyFinding.model_validate(item) for item in findings]
+    workbook = load_workbook(destination)
+    response = workbook['Response_Map']
+    headers = _append_missing_headers(response, FINAL_RESPONSE_MAP_HEADERS)
+    rows = {
+        str(response.cell(row, headers['Comment ID']).value): row
+        for row in range(2, response.max_row + 1)
+        if response.cell(row, headers['Comment ID']).value
+    }
+    for entry in response_package.entries:
+        row = rows.get(entry.comment_id)
+        if row is None:
+            row = response.max_row + 1
+            response.cell(row, headers['Comment ID'], entry.comment_id)
+            rows[entry.comment_id] = row
+        values = {
+            'Response Entry ID': entry.response_entry_id,
+            'Response Status': entry.response_status.value,
+            'Change IDs': _join(entry.related_change_ids),
+            'Evidence IDs': _join(entry.related_evidence_ids),
+            'Reference IDs': _join(entry.related_reference_ids),
+            'Verified Location': _join(entry.verified_locations),
+            'Highlight': entry.highlight.value,
+            'Author Approval': entry.author_approved,
+            'Verification Status': (
+                'VERIFIED' if entry.response_status.value == 'VERIFIED'
+                else entry.response_status.value
+            ),
+            'Unresolved Issues': _join([
+                *entry.unresolved_limitations, *entry.verification_notes
+            ]),
+        }
+        for header, value in values.items():
+            response.cell(row, headers[header], value)
+        legacy_values = {
+            'Response ID': entry.response_entry_id,
+            'Exact Comment Verified': True,
+            'Response Draft': entry.author_response,
+            'Changes Made': entry.changes_made,
+            'Applied Location': _join(entry.verified_locations),
+            'Status': entry.response_status.value,
+            'Consistency Verified': not consistency,
+        }
+        for header, value in legacy_values.items():
+            if header in headers:
+                response.cell(row, headers[header], value)
+        response.cell(row, headers['Highlight']).fill = PatternFill(
+            'solid', fgColor=_HIGHLIGHT_HEX[entry.highlight.value]
+        )
+    dashboard = workbook['Dashboard']
+    metric_rows = {
+        str(dashboard.cell(row, 1).value): row
+        for row in range(1, dashboard.max_row + 1)
+        if dashboard.cell(row, 1).value
+    }
+    metrics = {
+        'Total comments': len(response_package.entries),
+        'Response drafts': sum(
+            item.response_status.value in {'DRAFTED', 'AUTHOR_REVIEW'}
+            for item in response_package.entries
+        ),
+        'Approved responses': sum(
+            item.response_status.value in {'APPROVED', 'VERIFIED'}
+            for item in response_package.entries
+        ),
+        'Verified responses': sum(
+            item.response_status.value == 'VERIFIED'
+            for item in response_package.entries
+        ),
+        'Blocked responses': sum(
+            item.response_status.value == 'BLOCKED'
+            for item in response_package.entries
+        ),
+        'Missing locations': sum(
+            bool(item.related_change_ids) and not item.verified_locations
+            for item in response_package.entries
+        ),
+        'Cross-document inconsistencies': len(consistency),
+        'Final-release readiness': readiness,
+    }
+    for metric, value in metrics.items():
+        row = metric_rows.get(metric)
+        if row is None:
+            row = dashboard.max_row + 1
+            dashboard.cell(row, 1, metric)
+            metric_rows[metric] = row
+        dashboard.cell(row, 2, value)
+    qa = workbook['QA_Findings']
+    qa_headers = _header_columns(qa)
+    existing = {
+        str(qa.cell(row, qa_headers.get('Finding ID', 1)).value)
+        for row in range(2, qa.max_row + 1)
+    }
+    for item in consistency:
+        if item.finding_id in existing:
+            continue
+        qa.append([
+            item.finding_id, 'RESPONSE_LETTER_CONSISTENCY',
+            item.severity.value, item.description,
+            '; '.join(item.documents), None, None, None,
+            item.status.value, item.resolution, False,
+        ])
+    _format_body(response, tuple(
+        str(cell.value) for cell in response[1] if cell.value is not None
+    ))
+    _format_body(qa, _OTHER_HEADERS['QA_Findings'])
     workbook.save(destination)
     return destination

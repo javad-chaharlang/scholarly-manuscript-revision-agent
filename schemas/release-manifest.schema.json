@@ -1,0 +1,108 @@
+{
+  "$defs": {
+    "FinalReleaseReadiness": {
+      "enum": [
+        "BLOCKED",
+        "NOT_READY",
+        "READY_WITH_WARNINGS",
+        "READY"
+      ],
+      "title": "FinalReleaseReadiness",
+      "type": "string"
+    },
+    "ReleaseArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "approved": {
+          "default": true,
+          "title": "Approved",
+          "type": "boolean"
+        },
+        "release_path": {
+          "minLength": 1,
+          "title": "Release Path",
+          "type": "string"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "minimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "source_path": {
+          "minLength": 1,
+          "title": "Source Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "source_path",
+        "release_path",
+        "sha256",
+        "size_bytes"
+      ],
+      "title": "ReleaseArtifact",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifacts": {
+      "items": {
+        "$ref": "#/$defs/ReleaseArtifact"
+      },
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "excluded_categories": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Excluded Categories",
+      "type": "array"
+    },
+    "final_author_approved": {
+      "title": "Final Author Approved",
+      "type": "boolean"
+    },
+    "immutable": {
+      "default": true,
+      "title": "Immutable",
+      "type": "boolean"
+    },
+    "readiness": {
+      "$ref": "#/$defs/FinalReleaseReadiness"
+    },
+    "release_name": {
+      "title": "Release Name",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "release_name",
+    "created_at",
+    "readiness",
+    "final_author_approved"
+  ],
+  "title": "ReleaseManifest",
+  "type": "object"
+}

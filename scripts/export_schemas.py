@@ -23,6 +23,12 @@ from scholarly_revision.models import (  # noqa: E402
     ProjectManifest,
     QAFinding,
     ReferenceRecord,
+    ResponsePackage,
+    FinalReleaseChecklist,
+    FinalReleaseReport,
+    ReleaseArtifact,
+    ReleaseManifest,
+    ManualVisualQARecord,
     ResponseLetterEntry,
     ReviewerComment,
     RevisionAction,
@@ -45,6 +51,12 @@ SCHEMA_MODELS: tuple[tuple[str, ModelType], ...] = (
     ('qa-finding.schema.json', QAFinding),
     ('audit-issue.schema.json', AuditIssue),
     ('scientific-qa-report.schema.json', ScientificQAReport),
+    ('response-package.schema.json', ResponsePackage),
+    ('final-release-checklist.schema.json', FinalReleaseChecklist),
+    ('final-release-report.schema.json', FinalReleaseReport),
+    ('release-artifact.schema.json', ReleaseArtifact),
+    ('release-manifest.schema.json', ReleaseManifest),
+    ('manual-visual-qa-record.schema.json', ManualVisualQARecord),
 )
 
 

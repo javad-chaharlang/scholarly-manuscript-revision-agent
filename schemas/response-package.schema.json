@@ -1,0 +1,404 @@
+{
+  "$defs": {
+    "CommentResolution": {
+      "enum": [
+        "FULLY_ADDRESSED",
+        "PARTIALLY_ADDRESSED",
+        "RESPECTFULLY_DECLINED",
+        "DEFERRED",
+        "BLOCKED_BY_MISSING_EVIDENCE",
+        "NOT_APPLICABLE"
+      ],
+      "title": "CommentResolution",
+      "type": "string"
+    },
+    "EditorCoverLetter": {
+      "additionalProperties": false,
+      "properties": {
+        "body_paragraphs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Body Paragraphs",
+          "type": "array"
+        },
+        "closing": {
+          "default": "Sincerely,",
+          "title": "Closing",
+          "type": "string"
+        },
+        "salutation": {
+          "default": "Dear Editor,",
+          "title": "Salutation",
+          "type": "string"
+        },
+        "verification_notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Verification Notes",
+          "type": "array"
+        },
+        "verified_metadata_only": {
+          "default": true,
+          "title": "Verified Metadata Only",
+          "type": "boolean"
+        }
+      },
+      "title": "EditorCoverLetter",
+      "type": "object"
+    },
+    "EvidenceStatus": {
+      "enum": [
+        "NOT_REQUIRED",
+        "REQUIRED",
+        "MISSING",
+        "PROVIDED",
+        "VERIFIED",
+        "REJECTED"
+      ],
+      "title": "EvidenceStatus",
+      "type": "string"
+    },
+    "HighlightColor": {
+      "enum": [
+        "YELLOW",
+        "BRIGHT_GREEN",
+        "VIOLET"
+      ],
+      "title": "HighlightColor",
+      "type": "string"
+    },
+    "LocationStatus": {
+      "enum": [
+        "NOT_REQUIRED",
+        "UNVERIFIED",
+        "SECTION_VERIFIED",
+        "OBJECT_VERIFIED",
+        "PAGE_VERIFIED",
+        "PAGE_AND_LINES_VERIFIED"
+      ],
+      "title": "LocationStatus",
+      "type": "string"
+    },
+    "ResponseEntry": {
+      "additionalProperties": false,
+      "description": "One response record linked to the source-of-truth reviewer comment.",
+      "properties": {
+        "approved_interpretation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approved Interpretation"
+        },
+        "author_approved": {
+          "default": false,
+          "title": "Author Approved",
+          "type": "boolean"
+        },
+        "author_justification": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author Justification"
+        },
+        "author_response": {
+          "default": "",
+          "title": "Author Response",
+          "type": "string"
+        },
+        "changes_made": {
+          "default": "",
+          "title": "Changes Made",
+          "type": "string"
+        },
+        "comment_id": {
+          "title": "Comment Id",
+          "type": "string"
+        },
+        "evidence_status": {
+          "$ref": "#/$defs/EvidenceStatus",
+          "default": "NOT_REQUIRED"
+        },
+        "exact_comment": {
+          "title": "Exact Comment",
+          "type": "string"
+        },
+        "highlight": {
+          "$ref": "#/$defs/HighlightColor"
+        },
+        "location_status": {
+          "$ref": "#/$defs/LocationStatus",
+          "default": "UNVERIFIED"
+        },
+        "related_action_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Action Ids",
+          "type": "array"
+        },
+        "related_change_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Change Ids",
+          "type": "array"
+        },
+        "related_evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Evidence Ids",
+          "type": "array"
+        },
+        "related_reference_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Reference Ids",
+          "type": "array"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommentResolution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "response_entry_id": {
+          "minLength": 1,
+          "title": "Response Entry Id",
+          "type": "string"
+        },
+        "response_status": {
+          "$ref": "#/$defs/ResponseStatus",
+          "default": "NOT_STARTED"
+        },
+        "reviewer_number": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer Number"
+        },
+        "reviewer_source": {
+          "$ref": "#/$defs/ReviewerSource"
+        },
+        "sequence_number": {
+          "minimum": 1,
+          "title": "Sequence Number",
+          "type": "integer"
+        },
+        "unresolved_limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unresolved Limitations",
+          "type": "array"
+        },
+        "verification_notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Verification Notes",
+          "type": "array"
+        },
+        "verified_locations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Verified Locations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "response_entry_id",
+        "reviewer_source",
+        "comment_id",
+        "sequence_number",
+        "exact_comment",
+        "highlight"
+      ],
+      "title": "ResponseEntry",
+      "type": "object"
+    },
+    "ResponseStatus": {
+      "enum": [
+        "NOT_STARTED",
+        "DRAFTED",
+        "AUTHOR_REVIEW",
+        "APPROVED",
+        "VERIFIED",
+        "BLOCKED"
+      ],
+      "title": "ResponseStatus",
+      "type": "string"
+    },
+    "ReviewerResponseSection": {
+      "additionalProperties": false,
+      "properties": {
+        "entries": {
+          "items": {
+            "$ref": "#/$defs/ResponseEntry"
+          },
+          "title": "Entries",
+          "type": "array"
+        },
+        "reviewer_number": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer Number"
+        },
+        "reviewer_source": {
+          "$ref": "#/$defs/ReviewerSource"
+        },
+        "section_id": {
+          "minLength": 1,
+          "title": "Section Id",
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "section_id",
+        "title",
+        "reviewer_source"
+      ],
+      "title": "ReviewerResponseSection",
+      "type": "object"
+    },
+    "ReviewerSource": {
+      "enum": [
+        "EDITOR",
+        "REVIEWER",
+        "GENERAL"
+      ],
+      "title": "ReviewerSource",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "closing_statement": {
+      "minLength": 1,
+      "title": "Closing Statement",
+      "type": "string"
+    },
+    "cover_letter": {
+      "$ref": "#/$defs/EditorCoverLetter"
+    },
+    "general_revisions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "General Revisions",
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "journal": {
+      "minLength": 1,
+      "title": "Journal",
+      "type": "string"
+    },
+    "manuscript_id": {
+      "minLength": 1,
+      "title": "Manuscript Id",
+      "type": "string"
+    },
+    "manuscript_title": {
+      "minLength": 1,
+      "title": "Manuscript Title",
+      "type": "string"
+    },
+    "package_status": {
+      "$ref": "#/$defs/ResponseStatus",
+      "default": "DRAFTED"
+    },
+    "revision_round": {
+      "minimum": 1,
+      "title": "Revision Round",
+      "type": "integer"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/ReviewerResponseSection"
+      },
+      "title": "Sections",
+      "type": "array"
+    },
+    "source_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Source Hashes",
+      "type": "object"
+    },
+    "summary_of_major_revisions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Summary Of Major Revisions",
+      "type": "array"
+    },
+    "verification_metadata": {
+      "additionalProperties": true,
+      "title": "Verification Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "generated_at",
+    "manuscript_title",
+    "manuscript_id",
+    "journal",
+    "revision_round",
+    "cover_letter",
+    "closing_statement"
+  ],
+  "title": "ResponsePackage",
+  "type": "object"
+}

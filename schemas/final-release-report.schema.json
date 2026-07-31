@@ -1,0 +1,298 @@
+{
+  "$defs": {
+    "AuditIssueStatus": {
+      "enum": [
+        "OPEN",
+        "ACKNOWLEDGED",
+        "RESOLVED",
+        "ACCEPTED_RISK",
+        "NOT_APPLICABLE"
+      ],
+      "title": "AuditIssueStatus",
+      "type": "string"
+    },
+    "AuditSeverity": {
+      "enum": [
+        "BLOCKER",
+        "CRITICAL",
+        "MAJOR",
+        "MINOR",
+        "INFORMATIONAL"
+      ],
+      "title": "AuditSeverity",
+      "type": "string"
+    },
+    "ConsistencyCategory": {
+      "enum": [
+        "COMMENT_COVERAGE",
+        "TRACEABILITY",
+        "CHANGE_CLAIM",
+        "HIGHLIGHT",
+        "LOCATION",
+        "EVIDENCE",
+        "REFERENCE",
+        "NUMERICAL",
+        "QA",
+        "STATUS",
+        "MANUSCRIPT_EQUIVALENCE",
+        "APPROVAL",
+        "CONFIDENTIALITY",
+        "ARTIFACT"
+      ],
+      "title": "ConsistencyCategory",
+      "type": "string"
+    },
+    "ConsistencyFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "$ref": "#/$defs/ConsistencyCategory"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "documents": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Documents",
+          "type": "array"
+        },
+        "finding_id": {
+          "minLength": 1,
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "related_action_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Action Ids",
+          "type": "array"
+        },
+        "related_change_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Change Ids",
+          "type": "array"
+        },
+        "related_comment_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Comment Ids",
+          "type": "array"
+        },
+        "related_response_entry_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Response Entry Ids",
+          "type": "array"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolution"
+        },
+        "severity": {
+          "$ref": "#/$defs/AuditSeverity"
+        },
+        "status": {
+          "$ref": "#/$defs/AuditIssueStatus",
+          "default": "OPEN"
+        }
+      },
+      "required": [
+        "finding_id",
+        "category",
+        "severity",
+        "description"
+      ],
+      "title": "ConsistencyFinding",
+      "type": "object"
+    },
+    "FinalReleaseCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "warning": {
+          "default": false,
+          "title": "Warning",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "category",
+        "passed"
+      ],
+      "title": "FinalReleaseCheck",
+      "type": "object"
+    },
+    "FinalReleaseChecklist": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/FinalReleaseCheck"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "readiness": {
+          "$ref": "#/$defs/FinalReleaseReadiness"
+        }
+      },
+      "required": [
+        "generated_at",
+        "readiness"
+      ],
+      "title": "FinalReleaseChecklist",
+      "type": "object"
+    },
+    "FinalReleaseReadiness": {
+      "enum": [
+        "BLOCKED",
+        "NOT_READY",
+        "READY_WITH_WARNINGS",
+        "READY"
+      ],
+      "title": "FinalReleaseReadiness",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "blocker_reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocker Reasons",
+      "type": "array"
+    },
+    "checklist": {
+      "$ref": "#/$defs/FinalReleaseChecklist"
+    },
+    "consistency_findings": {
+      "items": {
+        "$ref": "#/$defs/ConsistencyFinding"
+      },
+      "title": "Consistency Findings",
+      "type": "array"
+    },
+    "final_approval_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Final Approval At"
+    },
+    "final_approval_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Final Approval By"
+    },
+    "final_author_approved": {
+      "default": false,
+      "title": "Final Author Approved",
+      "type": "boolean"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "readiness": {
+      "$ref": "#/$defs/FinalReleaseReadiness"
+    },
+    "release_permitted": {
+      "default": false,
+      "title": "Release Permitted",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "warning_reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warning Reasons",
+      "type": "array"
+    }
+  },
+  "required": [
+    "generated_at",
+    "readiness",
+    "checklist"
+  ],
+  "title": "FinalReleaseReport",
+  "type": "object"
+}

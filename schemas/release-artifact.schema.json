@@ -1,0 +1,43 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "approved": {
+      "default": true,
+      "title": "Approved",
+      "type": "boolean"
+    },
+    "release_path": {
+      "minLength": 1,
+      "title": "Release Path",
+      "type": "string"
+    },
+    "role": {
+      "minLength": 1,
+      "title": "Role",
+      "type": "string"
+    },
+    "sha256": {
+      "title": "Sha256",
+      "type": "string"
+    },
+    "size_bytes": {
+      "minimum": 0,
+      "title": "Size Bytes",
+      "type": "integer"
+    },
+    "source_path": {
+      "minLength": 1,
+      "title": "Source Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "role",
+    "source_path",
+    "release_path",
+    "sha256",
+    "size_bytes"
+  ],
+  "title": "ReleaseArtifact",
+  "type": "object"
+}

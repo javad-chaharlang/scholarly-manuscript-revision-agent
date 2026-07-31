@@ -1,0 +1,32 @@
+schema_version: 1
+readiness: NOT_READY
+checks:
+  - project metadata complete
+  - every reviewer comment accounted for
+  - every response verified
+  - all required author approvals recorded
+  - manuscript changes applied
+  - clean/highlighted manuscript equivalence verified
+  - highlight policy verified
+  - references structurally verified
+  - empirical results verified
+  - unresolved blockers reviewed
+  - scientific QA readiness acceptable
+  - front matter reviewed
+  - figures and tables checked
+  - equations and symbols checked
+  - response letter verified
+  - final files open successfully
+  - confidential source files excluded from Git
+  - release manifest complete
+  - rendered Word documents visually inspected
+  - final human release approval recorded
+rules:
+  ready_prohibited_when:
+    - reviewer comment missing
+    - response falsely reports a change
+    - required empirical result lacks evidence
+    - unresolved blocker remains
+    - manuscript and response values conflict
+    - clean and highlighted manuscripts are not text-equivalent
+    - unapproved revision was applied

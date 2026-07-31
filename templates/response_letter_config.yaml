@@ -1,0 +1,26 @@
+schema_version: 1
+title: Response to the Editor and Reviewers
+font: Arial
+font_color: black
+editable_text_only: true
+use_bordered_response_blocks: true
+highlight_policy:
+  reviewer_1: YELLOW
+  reviewer_2: BRIGHT_GREEN
+  shared_editor_general: VIOLET
+sections:
+  - manuscript_information
+  - cover_letter_to_editor
+  - summary_of_major_revisions
+  - reviewer_responses
+  - editor_and_shared_comments
+  - general_revisions
+  - closing_statement
+integrity:
+  preserve_exact_comments: true
+  require_verified_changes: true
+  require_verified_locations: true
+  prohibit_inferred_pages_and_lines: true
+  require_verified_evidence_and_references: true
+  preserve_limitations_and_deferred_work: true
+

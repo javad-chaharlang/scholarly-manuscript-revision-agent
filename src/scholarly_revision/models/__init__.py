@@ -18,6 +18,16 @@ from scholarly_revision.models.revision_draft import (
     RevisionTextDecisionRecord,
 )
 from scholarly_revision.models.traceability import ResponseLetterEntry, TraceabilityRecord
+from scholarly_revision.models.response_package import (
+    CommentResolution, EditorCoverLetter, LocationStatus, ResponseEntry,
+    ResponsePackage, ResponseStatus, ReviewerResponseSection,
+)
+from scholarly_revision.models.release import (
+    ConsistencyCategory, ConsistencyFinding, FinalReleaseCheck,
+    FinalReleaseChecklist, FinalReleaseReport, ManualVisualQAArtifactDecision,
+    ManualVisualQADecision, ManualVisualQARecord, ReleaseArtifact,
+    ReleaseManifest,
+)
 
 __all__ = [
     'ActionProposal',
@@ -37,6 +47,12 @@ __all__ = [
     'ReviewerComment',
     'RevisionAction',
     'TraceabilityRecord',
+    'CommentResolution', 'EditorCoverLetter', 'LocationStatus', 'ResponseEntry',
+    'ResponsePackage', 'ResponseStatus', 'ReviewerResponseSection',
+    'ConsistencyCategory', 'ConsistencyFinding', 'FinalReleaseCheck',
+    'FinalReleaseChecklist', 'FinalReleaseReport', 'ReleaseArtifact',
+    'ReleaseManifest', 'ManualVisualQAArtifactDecision',
+    'ManualVisualQADecision', 'ManualVisualQARecord',
 ]
 from scholarly_revision.models.scientific_audit import (
     AuditIssue, AuditIssueStatus, AuditSeverity, CitationAuditResult,

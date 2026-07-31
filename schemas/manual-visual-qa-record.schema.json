@@ -1,0 +1,105 @@
+{
+  "$defs": {
+    "ManualVisualQAArtifactDecision": {
+      "additionalProperties": false,
+      "description": "Explicit human inspection decision for one final deliverable.",
+      "properties": {
+        "artifact_name": {
+          "minLength": 1,
+          "title": "Artifact Name",
+          "type": "string"
+        },
+        "artifact_sha256": {
+          "title": "Artifact Sha256",
+          "type": "string"
+        },
+        "clean_highlight_text_equivalence_confirmed": {
+          "title": "Clean Highlight Text Equivalence Confirmed",
+          "type": "boolean"
+        },
+        "decision": {
+          "$ref": "#/$defs/ManualVisualQADecision"
+        },
+        "decision_maker": {
+          "minLength": 1,
+          "title": "Decision Maker",
+          "type": "string"
+        },
+        "decision_timestamp": {
+          "format": "date-time",
+          "title": "Decision Timestamp",
+          "type": "string"
+        },
+        "highlights_verified": {
+          "title": "Highlights Verified",
+          "type": "boolean"
+        },
+        "layout_acceptable": {
+          "title": "Layout Acceptable",
+          "type": "boolean"
+        },
+        "opened_successfully": {
+          "title": "Opened Successfully",
+          "type": "boolean"
+        },
+        "repair_warning_present": {
+          "title": "Repair Warning Present",
+          "type": "boolean"
+        },
+        "reviewer_notes": {
+          "title": "Reviewer Notes",
+          "type": "string"
+        },
+        "tables_and_captions_acceptable": {
+          "title": "Tables And Captions Acceptable",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "artifact_name",
+        "artifact_sha256",
+        "opened_successfully",
+        "repair_warning_present",
+        "layout_acceptable",
+        "highlights_verified",
+        "tables_and_captions_acceptable",
+        "clean_highlight_text_equivalence_confirmed",
+        "reviewer_notes",
+        "decision_maker",
+        "decision_timestamp",
+        "decision"
+      ],
+      "title": "ManualVisualQAArtifactDecision",
+      "type": "object"
+    },
+    "ManualVisualQADecision": {
+      "enum": [
+        "APPROVED",
+        "REJECTED"
+      ],
+      "title": "ManualVisualQADecision",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Complete human decision record for the five release artifacts.",
+  "properties": {
+    "decisions": {
+      "items": {
+        "$ref": "#/$defs/ManualVisualQAArtifactDecision"
+      },
+      "title": "Decisions",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "decisions"
+  ],
+  "title": "ManualVisualQARecord",
+  "type": "object"
+}

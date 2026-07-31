@@ -1,0 +1,87 @@
+{
+  "$defs": {
+    "FinalReleaseCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "warning": {
+          "default": false,
+          "title": "Warning",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "category",
+        "passed"
+      ],
+      "title": "FinalReleaseCheck",
+      "type": "object"
+    },
+    "FinalReleaseReadiness": {
+      "enum": [
+        "BLOCKED",
+        "NOT_READY",
+        "READY_WITH_WARNINGS",
+        "READY"
+      ],
+      "title": "FinalReleaseReadiness",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/FinalReleaseCheck"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "readiness": {
+      "$ref": "#/$defs/FinalReleaseReadiness"
+    }
+  },
+  "required": [
+    "generated_at",
+    "readiness"
+  ],
+  "title": "FinalReleaseChecklist",
+  "type": "object"
+}
