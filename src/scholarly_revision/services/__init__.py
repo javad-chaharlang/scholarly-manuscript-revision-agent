@@ -28,3 +28,15 @@ __all__ = [
     'sha256_file',
     'validate_default_project_config',
 ]
+from scholarly_revision.services.scientific_qa_service import (
+    ScientificQAService, ScientificQARun, load_qa_config, run_scientific_qa,
+)
+from scholarly_revision.services.qa_report_service import (
+    aggregate_report, apply_qa_decisions, update_qa_workbook,
+    verify_qa_resolutions, write_qa_reports,
+)
+__all__ += [
+    'ScientificQAService','ScientificQARun','load_qa_config','run_scientific_qa',
+    'aggregate_report','apply_qa_decisions','update_qa_workbook',
+    'verify_qa_resolutions','write_qa_reports',
+]

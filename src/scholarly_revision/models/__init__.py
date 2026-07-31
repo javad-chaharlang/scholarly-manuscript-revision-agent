@@ -38,3 +38,17 @@ __all__ = [
     'RevisionAction',
     'TraceabilityRecord',
 ]
+from scholarly_revision.models.scientific_audit import (
+    AuditIssue, AuditIssueStatus, AuditSeverity, CitationAuditResult,
+    EquationSymbolAuditResult, FigureTableAuditResult, FinalReleaseReadiness,
+    FrontMatterAuditResult, HighlightAuditResult, NumericalConsistencyResult,
+    ReferenceAuditResult, ResultIntegrityResult, ScientificQAReport,
+    TerminologyAuditResult,
+)
+__all__ += [
+    'AuditIssue','AuditIssueStatus','AuditSeverity','CitationAuditResult',
+    'EquationSymbolAuditResult','FigureTableAuditResult','FinalReleaseReadiness',
+    'FrontMatterAuditResult','HighlightAuditResult','NumericalConsistencyResult',
+    'ReferenceAuditResult','ResultIntegrityResult','ScientificQAReport',
+    'TerminologyAuditResult',
+]

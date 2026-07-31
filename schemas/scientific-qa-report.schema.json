@@ -1,0 +1,284 @@
+{
+  "$defs": {
+    "AuditIssue": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "document_element_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Element Id"
+        },
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "issue_id": {
+          "minLength": 1,
+          "title": "Issue Id",
+          "type": "string"
+        },
+        "manual_review_required": {
+          "default": false,
+          "title": "Manual Review Required",
+          "type": "boolean"
+        },
+        "related_action_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Action Ids",
+          "type": "array"
+        },
+        "related_comment_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Comment Ids",
+          "type": "array"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolution"
+        },
+        "resolution_required": {
+          "default": true,
+          "title": "Resolution Required",
+          "type": "boolean"
+        },
+        "section": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Section"
+        },
+        "severity": {
+          "$ref": "#/$defs/AuditSeverity"
+        },
+        "status": {
+          "$ref": "#/$defs/AuditIssueStatus",
+          "default": "OPEN"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "verified_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified By"
+        }
+      },
+      "required": [
+        "issue_id",
+        "category",
+        "severity",
+        "description"
+      ],
+      "title": "AuditIssue",
+      "type": "object"
+    },
+    "AuditIssueStatus": {
+      "enum": [
+        "OPEN",
+        "ACKNOWLEDGED",
+        "RESOLVED",
+        "ACCEPTED_RISK",
+        "NOT_APPLICABLE"
+      ],
+      "title": "AuditIssueStatus",
+      "type": "string"
+    },
+    "AuditSeverity": {
+      "enum": [
+        "BLOCKER",
+        "CRITICAL",
+        "MAJOR",
+        "MINOR",
+        "INFORMATIONAL"
+      ],
+      "title": "AuditSeverity",
+      "type": "string"
+    },
+    "FinalReleaseReadiness": {
+      "enum": [
+        "BLOCKED",
+        "NOT_READY",
+        "READY_WITH_WARNINGS",
+        "READY"
+      ],
+      "title": "FinalReleaseReadiness",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "affected_objects": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Affected Objects",
+      "type": "array"
+    },
+    "affected_sections": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Affected Sections",
+      "type": "array"
+    },
+    "auditor_summaries": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Auditor Summaries",
+      "type": "object"
+    },
+    "blocker_count": {
+      "default": 0,
+      "title": "Blocker Count",
+      "type": "integer"
+    },
+    "count_by_category": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Count By Category",
+      "type": "object"
+    },
+    "count_by_severity": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Count By Severity",
+      "type": "object"
+    },
+    "count_by_status": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Count By Status",
+      "type": "object"
+    },
+    "evidence_dependent_issue_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Dependent Issue Ids",
+      "type": "array"
+    },
+    "external_verification_performed": {
+      "default": false,
+      "title": "External Verification Performed",
+      "type": "boolean"
+    },
+    "final_human_approval_recorded": {
+      "default": false,
+      "title": "Final Human Approval Recorded",
+      "type": "boolean"
+    },
+    "final_release_readiness": {
+      "$ref": "#/$defs/FinalReleaseReadiness"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "issues": {
+      "items": {
+        "$ref": "#/$defs/AuditIssue"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "manual_review_count": {
+      "default": 0,
+      "title": "Manual Review Count",
+      "type": "integer"
+    },
+    "manuscript_modified": {
+      "default": false,
+      "title": "Manuscript Modified",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Source Hashes",
+      "type": "object"
+    },
+    "total_issues": {
+      "default": 0,
+      "title": "Total Issues",
+      "type": "integer"
+    },
+    "unresolved_critical_issues": {
+      "default": 0,
+      "title": "Unresolved Critical Issues",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "generated_at",
+    "final_release_readiness"
+  ],
+  "title": "ScientificQAReport",
+  "type": "object"
+}

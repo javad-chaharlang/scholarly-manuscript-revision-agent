@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "results": [
+    {
+      "result_id": "RES-0001",
+      "metric_name": "synthetic_score",
+      "value": "8.0",
+      "unit": "units",
+      "dataset": "anonymous-dataset",
+      "configuration": "placeholder-setting",
+      "source_file": null,
+      "source_cell_or_range": null,
+      "result_status": "FINAL",
+      "evidence_status": "UNVERIFIED",
+      "approved_value": "8.0",
+      "used_in_sections": ["Abstract"]
+    },
+    {
+      "result_id": "RES-0002",
+      "metric_name": "unused_metric",
+      "value": "1.0",
+      "unit": "units",
+      "source_file": "anonymous-results.csv",
+      "source_cell_or_range": "A1",
+      "result_status": "DRAFT",
+      "evidence_status": "PROVIDED",
+      "used_in_sections": []
+    }
+  ]
+}

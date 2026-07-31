@@ -16,6 +16,8 @@ if str(SOURCE_ROOT) not in sys.path:
     sys.path.insert(0, str(SOURCE_ROOT))
 
 from scholarly_revision.models import (  # noqa: E402
+    AuditIssue,
+    ScientificQAReport,
     EvidenceRecord,
     ExperimentalResultRecord,
     ProjectManifest,
@@ -41,6 +43,8 @@ SCHEMA_MODELS: tuple[tuple[str, ModelType], ...] = (
     ('traceability-record.schema.json', TraceabilityRecord),
     ('response-letter-entry.schema.json', ResponseLetterEntry),
     ('qa-finding.schema.json', QAFinding),
+    ('audit-issue.schema.json', AuditIssue),
+    ('scientific-qa-report.schema.json', ScientificQAReport),
 )
 
 

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "instructions": "Record one explicit decision per issue. Blank decisions are not resolutions.",
+  "decisions": [
+    {
+      "issue_id": "QA-CATEGORY-0001",
+      "decision": null,
+      "resolution": null,
+      "justification": null,
+      "evidence_request": null,
+      "decision_maker": null,
+      "decision_timestamp": null
+    }
+  ]
+}

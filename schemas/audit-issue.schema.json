@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "AuditIssueStatus": {
+      "enum": [
+        "OPEN",
+        "ACKNOWLEDGED",
+        "RESOLVED",
+        "ACCEPTED_RISK",
+        "NOT_APPLICABLE"
+      ],
+      "title": "AuditIssueStatus",
+      "type": "string"
+    },
+    "AuditSeverity": {
+      "enum": [
+        "BLOCKER",
+        "CRITICAL",
+        "MAJOR",
+        "MINOR",
+        "INFORMATIONAL"
+      ],
+      "title": "AuditSeverity",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "minLength": 1,
+      "title": "Category",
+      "type": "string"
+    },
+    "description": {
+      "minLength": 1,
+      "title": "Description",
+      "type": "string"
+    },
+    "document_element_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Document Element Id"
+    },
+    "evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "issue_id": {
+      "minLength": 1,
+      "title": "Issue Id",
+      "type": "string"
+    },
+    "manual_review_required": {
+      "default": false,
+      "title": "Manual Review Required",
+      "type": "boolean"
+    },
+    "related_action_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Related Action Ids",
+      "type": "array"
+    },
+    "related_comment_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Related Comment Ids",
+      "type": "array"
+    },
+    "resolution": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Resolution"
+    },
+    "resolution_required": {
+      "default": true,
+      "title": "Resolution Required",
+      "type": "boolean"
+    },
+    "section": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section"
+    },
+    "severity": {
+      "$ref": "#/$defs/AuditSeverity"
+    },
+    "status": {
+      "$ref": "#/$defs/AuditIssueStatus",
+      "default": "OPEN"
+    },
+    "verified_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verified At"
+    },
+    "verified_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verified By"
+    }
+  },
+  "required": [
+    "issue_id",
+    "category",
+    "severity",
+    "description"
+  ],
+  "title": "AuditIssue",
+  "type": "object"
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "references": [
+    {
+      "reference_id": "REF-001",
+      "final_number": 1,
+      "title": "Anonymous reference title one",
+      "authors": ["A. Example"],
+      "year": 2020,
+      "journal_or_source": "Synthetic Source",
+      "doi": "10.1234/syn.001",
+      "reason_added": "Anonymous reviewer-requested fixture.",
+      "requested_by_comment_ids": ["R1-C01"],
+      "highlight": "YELLOW",
+      "bibliographic_verified": false
+    },
+    {
+      "reference_id": "REF-004",
+      "final_number": 4,
+      "title": "Anonymous uncited title",
+      "authors": ["D. Example"],
+      "year": 2023,
+      "journal_or_source": "Synthetic Source",
+      "reason_added": "Anonymous general fixture.",
+      "requested_by_comment_ids": [],
+      "highlight": "VIOLET",
+      "bibliographic_verified": false
+    }
+  ]
+}

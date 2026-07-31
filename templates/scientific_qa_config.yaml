@@ -1,0 +1,34 @@
+schema_version: 1
+citation_style: numeric
+numerical:
+  sections: [Abstract, Results, Discussion, Conclusion]
+  percentage_tolerance: 0.1
+  dispersion_required_metrics: []
+results:
+  verify_source_files: false
+  approved_result_sections: [Abstract, Results, Discussion, Conclusion]
+equations:
+  require_equation_numbers: true
+  require_equation_references: false
+  defined_symbols: []
+  defined_abbreviations: []
+terminology_rules:
+  - canonical: adaptive-mode
+    variants: [adaptive method]
+    context_dependent: true
+  - canonical: reference-value matrix
+    variants: [selected reference values]
+    context_dependent: true
+front_matter:
+  placeholder_patterns:
+    - '\bFirstName\b'
+    - '\bLastName\b'
+    - '\bAuthor Name\b'
+    - '\bAffiliation placeholder\b'
+    - '\bemail@example\.com\b'
+    - '\bold manuscript title\b'
+    - '\bunrelated DOI\b'
+    - '\bold (?:volume|issue|publication date)\b'
+    - '\b(?:submission|acceptance) (?:date|placeholder)\b'
+  running_header_patterns:
+    - '\bOld Journal Running Header\b'
