@@ -1,0 +1,71 @@
+format: xlsx
+macros: false
+source_of_truth_status: draft
+highlight_policy:
+  REVIEWER_1: {value: YELLOW, rgb: FFFF00}
+  REVIEWER_2: {value: BRIGHT_GREEN, rgb: 00FF00}
+  SHARED_EDITOR_GENERAL: {value: VIOLET, rgb: EE82EE}
+sheets:
+  - name: Dashboard
+    headers: [Metric, Value]
+  - name: Project_Info
+    headers: [Field, Value]
+  - name: Reviewer_Comments
+    headers:
+      - Comment ID
+      - Source
+      - Reviewer Number
+      - Sequence
+      - Original Comment
+      - Normalized Comment
+      - Category
+      - Priority
+      - Interpretation
+      - Required Actions
+      - Target Sections
+      - Shared With
+      - Status
+      - Highlight
+      - Evidence Status
+      - Author Decision
+      - Notes
+      - Manual Review Required
+  - name: Revision_Plan
+    headers:
+      - Action ID
+      - Comment IDs
+      - Change Type
+      - Target Section
+      - Target Object
+      - Old Text Summary
+      - Proposed Revision
+      - Rationale
+      - Evidence IDs
+      - Status
+      - Approval State
+      - Highlight
+      - Applied Location
+      - Verified By
+      - Verified At
+  - name: Change_Log
+  - name: Reference_Audit
+  - name: Figures_Tables
+  - name: Notation_Equations
+  - name: Results_Integrity
+  - name: Response_Map
+  - name: QA_Findings
+data_validation_fields:
+  - Priority
+  - Category
+  - Status
+  - Evidence Status
+  - Approval State
+  - Highlight
+  - Change Type
+formatting:
+  freeze_header_rows: true
+  filters: true
+  wrap_long_text: true
+  bold_headers: true
+  visible_highlight_legend: true
+  formula_cells_locked: true

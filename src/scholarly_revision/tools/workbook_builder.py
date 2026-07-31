@@ -1,0 +1,357 @@
+'''Build the macro-free revision source-of-truth workbook with openpyxl.'''
+
+from __future__ import annotations
+
+from collections.abc import Iterable, Mapping
+from pathlib import Path
+from typing import Any
+
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill, Protection
+from openpyxl.utils import get_column_letter, quote_sheetname
+from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.workbook.defined_name import DefinedName
+
+from scholarly_revision.models.enums import (
+    ApprovalState,
+    ChangeType,
+    CommentCategory,
+    CommentPriority,
+    EvidenceStatus,
+    HighlightColor,
+    RevisionStatus,
+)
+from scholarly_revision.models.reviewer import ReviewerComment
+
+
+REVISION_WORKBOOK_SHEETS = (
+    'Dashboard',
+    'Project_Info',
+    'Reviewer_Comments',
+    'Revision_Plan',
+    'Change_Log',
+    'Reference_Audit',
+    'Figures_Tables',
+    'Notation_Equations',
+    'Results_Integrity',
+    'Response_Map',
+    'QA_Findings',
+)
+
+REVIEWER_COMMENT_HEADERS = (
+    'Comment ID',
+    'Source',
+    'Reviewer Number',
+    'Sequence',
+    'Original Comment',
+    'Normalized Comment',
+    'Category',
+    'Priority',
+    'Interpretation',
+    'Required Actions',
+    'Target Sections',
+    'Shared With',
+    'Status',
+    'Highlight',
+    'Evidence Status',
+    'Author Decision',
+    'Notes',
+    'Manual Review Required',
+)
+
+REVISION_PLAN_HEADERS = (
+    'Action ID',
+    'Comment IDs',
+    'Change Type',
+    'Target Section',
+    'Target Object',
+    'Old Text Summary',
+    'Proposed Revision',
+    'Rationale',
+    'Evidence IDs',
+    'Status',
+    'Approval State',
+    'Highlight',
+    'Applied Location',
+    'Verified By',
+    'Verified At',
+)
+
+_OTHER_HEADERS = {
+    'Project_Info': ('Field', 'Value'),
+    'Change_Log': (
+        'Change ID', 'Comment IDs', 'Action ID', 'File', 'Change Type',
+        'Description', 'Location', 'Status', 'Highlight', 'Applied At',
+        'Applied By', 'Verified At', 'Verified By',
+    ),
+    'Reference_Audit': (
+        'Reference ID', 'Comment IDs', 'Temporary Number', 'Final Number',
+        'Title', 'Source', 'DOI', 'Bibliographic Verified',
+        'Claim Support Verified', 'First Citation Location', 'Highlight', 'Notes',
+    ),
+    'Figures_Tables': (
+        'Object ID', 'Object Type', 'Comment IDs', 'Caption', 'Source File',
+        'Numbering Verified', 'Cross References Verified', 'Visual QA Status',
+        'Highlight', 'Notes',
+    ),
+    'Notation_Equations': (
+        'Object ID', 'Object Type', 'Comment IDs', 'Notation or Equation',
+        'Definition Location', 'Numbering Verified', 'Consistency Verified',
+        'Highlight', 'Notes',
+    ),
+    'Results_Integrity': (
+        'Result ID', 'Comment IDs', 'Metric', 'Value', 'Unit', 'Source File',
+        'Source Location', 'Result Status', 'Evidence Status', 'Approval State',
+        'Verified By', 'Verified At', 'Notes',
+    ),
+    'Response_Map': (
+        'Response ID', 'Comment ID', 'Exact Comment Verified',
+        'Response Draft', 'Changes Made', 'Applied Location', 'Status',
+        'Highlight', 'Consistency Verified', 'Notes',
+    ),
+    'QA_Findings': (
+        'Finding ID', 'Category', 'Severity', 'Description', 'File', 'Page',
+        'Section', 'Object ID', 'Status', 'Resolution', 'Verified',
+    ),
+}
+
+_HIGHLIGHT_HEX = {
+    HighlightColor.YELLOW.value: 'FFFFFF00',
+    HighlightColor.BRIGHT_GREEN.value: 'FF00FF00',
+    HighlightColor.VIOLET.value: 'FFEE82EE',
+}
+_HEADER_FILL = PatternFill('solid', fgColor='D9E1F2')
+_ENUM_VALUES = {
+    'PriorityValues': [item.value for item in CommentPriority],
+    'CategoryValues': [item.value for item in CommentCategory],
+    'StatusValues': [item.value for item in RevisionStatus],
+    'EvidenceStatusValues': [item.value for item in EvidenceStatus],
+    'ApprovalStateValues': [item.value for item in ApprovalState],
+    'HighlightValues': [item.value for item in HighlightColor],
+    'ChangeTypeValues': [item.value for item in ChangeType],
+}
+
+
+def _join(values: Iterable[Any]) -> str:
+    return '; '.join(str(value.value if hasattr(value, 'value') else value) for value in values)
+
+
+def _format_header(worksheet: Any, headers: tuple[str, ...]) -> None:
+    for column, header in enumerate(headers, start=1):
+        cell = worksheet.cell(1, column, header)
+        cell.font = Font(bold=True)
+        cell.fill = _HEADER_FILL
+        cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    worksheet.freeze_panes = 'A2'
+    worksheet.auto_filter.ref = f'A1:{get_column_letter(len(headers))}{max(2, worksheet.max_row)}'
+    worksheet.row_dimensions[1].height = 30
+
+
+def _format_body(worksheet: Any, headers: tuple[str, ...]) -> None:
+    long_columns = {
+        'Original Comment', 'Normalized Comment', 'Interpretation',
+        'Required Actions', 'Target Sections', 'Notes', 'Proposed Revision',
+        'Rationale', 'Old Text Summary', 'Description', 'Response Draft',
+        'Changes Made', 'Resolution', 'Caption',
+    }
+    for column, header in enumerate(headers, start=1):
+        width = 42 if header in long_columns else max(13, min(26, len(header) + 3))
+        worksheet.column_dimensions[get_column_letter(column)].width = width
+    for row in worksheet.iter_rows(min_row=2):
+        for cell in row:
+            cell.alignment = Alignment(vertical='top', wrap_text=True)
+
+
+def _write_enum_lists(workbook: Workbook) -> None:
+    sheet = workbook['Project_Info']
+    start_column = 24
+    for offset, (name, values) in enumerate(_ENUM_VALUES.items()):
+        column = start_column + offset
+        letter = get_column_letter(column)
+        sheet.cell(1, column, name)
+        for row, value in enumerate(values, start=2):
+            sheet.cell(row, column, value)
+        sheet.column_dimensions[letter].hidden = True
+        reference = f'{quote_sheetname(sheet.title)}!${letter}$2:${letter}${len(values) + 1}'
+        workbook.defined_names.add(DefinedName(name, attr_text=reference))
+
+
+def _add_validation(worksheet: Any, column: int, enum_name: str) -> None:
+    validation = DataValidation(type='list', formula1=f'={enum_name}', allow_blank=True)
+    validation.error = f'Choose a value from {enum_name}.'
+    validation.errorTitle = 'Invalid controlled value'
+    validation.promptTitle = 'Controlled value'
+    validation.prompt = 'Select a repository-approved value.'
+    validation.showErrorMessage = True
+    validation.showInputMessage = True
+    worksheet.add_data_validation(validation)
+    letter = get_column_letter(column)
+    validation.add(f'{letter}2:{letter}1000')
+
+
+def _add_validations(workbook: Workbook) -> None:
+    reviewer = workbook['Reviewer_Comments']
+    for column, name in {
+        7: 'CategoryValues', 8: 'PriorityValues', 13: 'StatusValues',
+        14: 'HighlightValues', 15: 'EvidenceStatusValues',
+    }.items():
+        _add_validation(reviewer, column, name)
+    plan = workbook['Revision_Plan']
+    for column, name in {
+        3: 'ChangeTypeValues', 10: 'StatusValues',
+        11: 'ApprovalStateValues', 12: 'HighlightValues',
+    }.items():
+        _add_validation(plan, column, name)
+    for sheet_name, column, name in (
+        ('Change_Log', 5, 'ChangeTypeValues'),
+        ('Change_Log', 8, 'StatusValues'),
+        ('Change_Log', 9, 'HighlightValues'),
+        ('Reference_Audit', 11, 'HighlightValues'),
+        ('Figures_Tables', 9, 'HighlightValues'),
+        ('Notation_Equations', 8, 'HighlightValues'),
+        ('Results_Integrity', 9, 'EvidenceStatusValues'),
+        ('Results_Integrity', 10, 'ApprovalStateValues'),
+        ('Response_Map', 7, 'StatusValues'),
+        ('Response_Map', 8, 'HighlightValues'),
+    ):
+        _add_validation(workbook[sheet_name], column, name)
+
+
+def _reviewer_row(comment: ReviewerComment) -> list[Any]:
+    return [
+        comment.comment_id,
+        comment.reviewer_source.value,
+        comment.reviewer_number,
+        comment.sequence_number,
+        comment.original_comment,
+        comment.normalized_comment,
+        _join(comment.categories),
+        comment.priority.value,
+        comment.interpretation,
+        _join(comment.required_actions),
+        _join(comment.target_sections),
+        _join(comment.shared_with),
+        comment.status.value,
+        comment.highlight.value if comment.highlight else None,
+        comment.evidence_status.value,
+        comment.author_decision,
+        comment.notes,
+        comment.manual_review_required,
+    ]
+
+
+def _build_dashboard(workbook: Workbook) -> None:
+    sheet = workbook['Dashboard']
+    sheet.append(['Metric', 'Value'])
+    metrics = [
+        ('Total comment count', '=COUNTA(Reviewer_Comments!A2:A1000)'),
+        ('Count by Reviewer 1', '=COUNTIFS(Reviewer_Comments!B2:B1000,"REVIEWER",Reviewer_Comments!C2:C1000,1)'),
+        ('Count by Reviewer 2', '=COUNTIFS(Reviewer_Comments!B2:B1000,"REVIEWER",Reviewer_Comments!C2:C1000,2)'),
+        ('Count by Editor/General', '=COUNTIF(Reviewer_Comments!B2:B1000,"EDITOR")+COUNTIF(Reviewer_Comments!B2:B1000,"GENERAL")'),
+        ('Count requiring manual review', '=COUNTIF(Reviewer_Comments!R2:R1000,TRUE)'),
+        ('Completion percentage', '=IF(B2=0,0,COUNTIF(Reviewer_Comments!M2:M1000,"VERIFIED")/B2)'),
+    ]
+    for metric in metrics:
+        sheet.append(metric)
+    sheet['B7'].number_format = '0.0%'
+
+    sheet.append([])
+    sheet.append(['Count by status', 'Count'])
+    for status in RevisionStatus:
+        row = sheet.max_row + 1
+        sheet.append([status.value, f'=COUNTIF(Reviewer_Comments!M2:M1000,A{row})'])
+    sheet.append([])
+    sheet.append(['Count by priority', 'Count'])
+    for priority in CommentPriority:
+        row = sheet.max_row + 1
+        sheet.append([priority.value, f'=COUNTIF(Reviewer_Comments!H2:H1000,A{row})'])
+    sheet.append([])
+    sheet.append(['Count by category', 'Count'])
+    for category in CommentCategory:
+        row = sheet.max_row + 1
+        sheet.append([category.value, f'=COUNTIF(Reviewer_Comments!G2:G1000,"*"&A{row}&"*")'])
+
+    sheet['D1'] = 'Highlight Legend'
+    sheet['E1'] = 'Assignment'
+    for cell in (sheet['D1'], sheet['E1']):
+        cell.font = Font(bold=True)
+        cell.fill = _HEADER_FILL
+    legend = (
+        ('YELLOW', 'Reviewer 1'),
+        ('BRIGHT_GREEN', 'Reviewer 2'),
+        ('VIOLET', 'Editor, general, and shared'),
+    )
+    for row, (highlight, assignment) in enumerate(legend, start=2):
+        sheet.cell(row, 4, highlight).fill = PatternFill('solid', fgColor=_HIGHLIGHT_HEX[highlight])
+        sheet.cell(row, 5, assignment)
+    sheet.column_dimensions['A'].width = 34
+    sheet.column_dimensions['B'].width = 18
+    sheet.column_dimensions['D'].width = 22
+    sheet.column_dimensions['E'].width = 32
+    for row in sheet.iter_rows():
+        for cell in row:
+            cell.alignment = Alignment(vertical='top', wrap_text=True)
+            if isinstance(cell.value, str) and cell.value.startswith('='):
+                cell.protection = Protection(locked=True)
+    sheet.freeze_panes = 'A2'
+    sheet.auto_filter.ref = f'A1:B{sheet.max_row}'
+    sheet.protection.sheet = True
+
+
+def build_revision_workbook(
+    path: str | Path,
+    comments: Iterable[ReviewerComment],
+    project_info: Mapping[str, Any] | None = None,
+) -> Path:
+    '''Create ``Revision_Master.xlsx`` as the draft source of truth.'''
+
+    destination = Path(path)
+    if destination.suffix.lower() != '.xlsx':
+        raise ValueError('revision workbook path must end with .xlsx')
+    validated_comments = [ReviewerComment.model_validate(item) for item in comments]
+
+    workbook = Workbook()
+    workbook.remove(workbook.active)
+    for name in REVISION_WORKBOOK_SHEETS:
+        workbook.create_sheet(name)
+
+    project_sheet = workbook['Project_Info']
+    project_sheet.append(_OTHER_HEADERS['Project_Info'])
+    for key, value in (project_info or {}).items():
+        project_sheet.append([str(key), value])
+
+    reviewer_sheet = workbook['Reviewer_Comments']
+    reviewer_sheet.append(REVIEWER_COMMENT_HEADERS)
+    for comment in validated_comments:
+        reviewer_sheet.append(_reviewer_row(comment))
+        highlight_cell = reviewer_sheet.cell(reviewer_sheet.max_row, 14)
+        highlight_cell.fill = PatternFill(
+            'solid', fgColor=_HIGHLIGHT_HEX[comment.highlight.value]
+        )
+
+    plan_sheet = workbook['Revision_Plan']
+    plan_sheet.append(REVISION_PLAN_HEADERS)
+    for sheet_name, headers in _OTHER_HEADERS.items():
+        if sheet_name != 'Project_Info':
+            workbook[sheet_name].append(headers)
+
+    _build_dashboard(workbook)
+    _write_enum_lists(workbook)
+    _add_validations(workbook)
+
+    header_map = {
+        'Dashboard': ('Metric', 'Value'),
+        'Project_Info': _OTHER_HEADERS['Project_Info'],
+        'Reviewer_Comments': REVIEWER_COMMENT_HEADERS,
+        'Revision_Plan': REVISION_PLAN_HEADERS,
+        **{name: headers for name, headers in _OTHER_HEADERS.items() if name != 'Project_Info'},
+    }
+    for sheet_name, headers in header_map.items():
+        sheet = workbook[sheet_name]
+        if sheet_name != 'Dashboard':
+            _format_header(sheet, headers)
+        _format_body(sheet, headers)
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    workbook.save(destination)
+    return destination

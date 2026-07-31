@@ -135,6 +135,11 @@
       "default": null,
       "title": "Interpretation"
     },
+    "manual_review_required": {
+      "default": false,
+      "title": "Manual Review Required",
+      "type": "boolean"
+    },
     "normalized_comment": {
       "anyOf": [
         {

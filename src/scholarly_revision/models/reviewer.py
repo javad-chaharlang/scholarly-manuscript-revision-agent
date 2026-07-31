@@ -103,6 +103,7 @@ class ReviewerComment(BaseModel):
     evidence_status: EvidenceStatus = EvidenceStatus.NOT_REQUIRED
     author_decision: str | None = None
     notes: str | None = None
+    manual_review_required: bool = False
 
     @model_validator(mode='before')
     @classmethod

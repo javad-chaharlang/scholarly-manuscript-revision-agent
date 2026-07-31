@@ -1,0 +1,36 @@
+# Safe metadata template. Do not add manuscript or reviewer text.
+project_name: anonymous-revision-project
+manuscript_id: SYNTHETIC-ID
+manuscript_title: UNSPECIFIED
+journal: UNSPECIFIED
+revision_round: 1
+manuscript_language: English
+response_language: English
+citation_style: journal-required
+reviewer_count: 2
+result_status: DRAFT
+highlight_policy:
+  reviewer_1: YELLOW
+  reviewer_2: BRIGHT_GREEN
+  shared_and_general: VIOLET
+approval_gates:
+  revision_plan: true
+  novelty_claims: true
+  experimental_conclusions: true
+  statistical_interpretations: true
+  rejected_reviewer_requests: true
+  final_release: true
+input_files:
+  manuscript: null
+  reviewer_comments: []
+  journal_instructions: null
+  reference_sources: []
+  experimental_records: []
+  prior_round_materials: []
+output_names:
+  highlighted_manuscript: manuscript_revised_highlighted.docx
+  clean_manuscript: manuscript_revised_clean.docx
+  revision_workbook: Revision_Master.xlsx
+  response_letter: response_to_reviewers.docx
+  qa_report: final_qa_report.md
+  audit_log: revision_audit.jsonl
