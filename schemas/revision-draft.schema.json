@@ -1,0 +1,395 @@
+{
+  "$defs": {
+    "HighlightColor": {
+      "enum": [
+        "YELLOW",
+        "BRIGHT_GREEN",
+        "VIOLET"
+      ],
+      "title": "HighlightColor",
+      "type": "string"
+    },
+    "RevisionDraftStatus": {
+      "enum": [
+        "PREPARED",
+        "DRAFTED",
+        "AWAITING_TEXT_APPROVAL",
+        "APPROVED",
+        "REJECTED",
+        "REWRITE_REQUESTED",
+        "NEED_MORE_EVIDENCE",
+        "DEFERRED",
+        "APPLIED",
+        "BLOCKED"
+      ],
+      "title": "RevisionDraftStatus",
+      "type": "string"
+    },
+    "RevisionOperation": {
+      "enum": [
+        "REPLACE_PARAGRAPH",
+        "INSERT_BEFORE",
+        "INSERT_AFTER",
+        "DELETE_PARAGRAPH",
+        "REPLACE_HEADING",
+        "REPLACE_TABLE_CELL",
+        "REPLACE_FIGURE_CAPTION",
+        "REPLACE_TABLE_CAPTION",
+        "ADD_PARAGRAPH_TO_SECTION"
+      ],
+      "title": "RevisionOperation",
+      "type": "string"
+    },
+    "RevisionTextApprovalState": {
+      "enum": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+        "REVISION_REQUESTED",
+        "NEEDS_EVIDENCE",
+        "DEFERRED"
+      ],
+      "title": "RevisionTextApprovalState",
+      "type": "string"
+    },
+    "RevisionTextDecision": {
+      "enum": [
+        "APPROVE_TEXT",
+        "APPROVE_TEXT_WITH_MODIFICATION",
+        "REJECT_TEXT",
+        "REQUEST_REWRITE",
+        "NEED_MORE_EVIDENCE",
+        "DEFER_TEXT"
+      ],
+      "title": "RevisionTextDecision",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One executable exact-text proposal linked to one approved action.",
+  "properties": {
+    "action_id": {
+      "minLength": 1,
+      "title": "Action Id",
+      "type": "string"
+    },
+    "application_status": {
+      "default": "NOT_APPLIED",
+      "title": "Application Status",
+      "type": "string"
+    },
+    "approval_state": {
+      "$ref": "#/$defs/RevisionTextApprovalState",
+      "default": "PENDING"
+    },
+    "approved_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approved Text"
+    },
+    "author_decision": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RevisionTextDecision"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "author_modified_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Author Modified Text"
+    },
+    "author_note": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Author Note"
+    },
+    "comment_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Comment Ids",
+      "type": "array"
+    },
+    "compatible_with_draft_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Compatible With Draft Ids",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "decision_maker": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Maker"
+    },
+    "decision_timestamp": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Timestamp"
+    },
+    "deletion_justification": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deletion Justification"
+    },
+    "draft_id": {
+      "minLength": 1,
+      "title": "Draft Id",
+      "type": "string"
+    },
+    "draft_status": {
+      "$ref": "#/$defs/RevisionDraftStatus",
+      "default": "PREPARED"
+    },
+    "drafting_rationale": {
+      "minLength": 1,
+      "title": "Drafting Rationale",
+      "type": "string"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "evidence_request": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Evidence Request"
+    },
+    "highlight": {
+      "$ref": "#/$defs/HighlightColor"
+    },
+    "manual_handling_reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Manual Handling Reasons",
+      "type": "array"
+    },
+    "manual_handling_required": {
+      "default": false,
+      "title": "Manual Handling Required",
+      "type": "boolean"
+    },
+    "operation": {
+      "$ref": "#/$defs/RevisionOperation"
+    },
+    "original_text_hash": {
+      "title": "Original Text Hash",
+      "type": "string"
+    },
+    "original_text_snapshot": {
+      "title": "Original Text Snapshot",
+      "type": "string"
+    },
+    "output_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Version"
+    },
+    "proposed_text": {
+      "default": "",
+      "title": "Proposed Text",
+      "type": "string"
+    },
+    "reference_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reference Ids",
+      "type": "array"
+    },
+    "rewrite_instruction": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rewrite Instruction"
+    },
+    "scientific_claim_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Scientific Claim Ids",
+      "type": "array"
+    },
+    "source_document_hash": {
+      "title": "Source Document Hash",
+      "type": "string"
+    },
+    "table_column": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Table Column"
+    },
+    "table_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Table Id"
+    },
+    "table_row": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Table Row"
+    },
+    "target_element_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Target Element Ids",
+      "type": "array"
+    },
+    "target_section": {
+      "minLength": 1,
+      "title": "Target Section",
+      "type": "string"
+    },
+    "unresolved_questions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unresolved Questions",
+      "type": "array"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "verified_location": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verified Location"
+    },
+    "verified_locations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Verified Locations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "draft_id",
+    "action_id",
+    "comment_ids",
+    "source_document_hash",
+    "target_element_ids",
+    "target_section",
+    "operation",
+    "original_text_snapshot",
+    "original_text_hash",
+    "drafting_rationale",
+    "highlight",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "RevisionDraft",
+  "type": "object"
+}

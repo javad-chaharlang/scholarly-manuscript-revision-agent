@@ -11,11 +11,21 @@ from scholarly_revision.models.project import ProjectManifest
 from scholarly_revision.models.qa import QAFinding
 from scholarly_revision.models.reference import ReferenceRecord
 from scholarly_revision.models.reviewer import ReviewerComment, RevisionAction
+from scholarly_revision.models.revision_draft import (
+    ChangeRecord,
+    DocumentVersionRecord,
+    RevisionDraft,
+    RevisionTextDecisionRecord,
+)
 from scholarly_revision.models.traceability import ResponseLetterEntry, TraceabilityRecord
 
 __all__ = [
     'ActionProposal',
     'ApprovalRecord',
+    'ChangeRecord',
+    'DocumentVersionRecord',
+    'RevisionDraft',
+    'RevisionTextDecisionRecord',
     'EvidenceRecord',
     'ExperimentalResultRecord',
     'ProjectManifest',

@@ -9,6 +9,8 @@ from scholarly_revision.models import (
     ResponseLetterEntry,
     ReviewerComment,
     RevisionAction,
+    RevisionDraft,
+    RevisionTextDecisionRecord,
     TraceabilityRecord,
 )
 
@@ -21,6 +23,8 @@ __all__ = [
     'ResponseLetterEntry',
     'ReviewerComment',
     'RevisionAction',
+    'RevisionDraft',
+    'RevisionTextDecisionRecord',
     'TraceabilityRecord',
 ]
 

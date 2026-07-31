@@ -4,8 +4,8 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'scholarly-manuscript-revision-agent'
-version = '0.2.0'
-description = 'Deterministic domain models for source-grounded scholarly manuscript revision'
+version = '0.3.0'
+description = 'Deterministic source-grounded scholarly manuscript revision workflows'
 requires-python = '>=3.11'
 dependencies = [
     'openpyxl>=3.1,<4',

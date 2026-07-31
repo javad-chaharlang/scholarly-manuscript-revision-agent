@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "instructions": "Record one explicit decision per draft. Blank decisions are not approvals.",
+  "decisions": [
+    {
+      "draft_id": "DRAFT-0001",
+      "decision": null,
+      "decision_maker": null,
+      "decision_timestamp": null,
+      "approved_text": null,
+      "author_modified_text": null,
+      "author_note": null,
+      "evidence_request": null,
+      "rewrite_instruction": null,
+      "unresolved_questions": []
+    }
+  ]
+}

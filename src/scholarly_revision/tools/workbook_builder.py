@@ -22,11 +22,13 @@ from scholarly_revision.models.enums import (
     CommentPriority,
     EvidenceStatus,
     HighlightColor,
+    RevisionOperation,
     RevisionStatus,
 )
 from scholarly_revision.models.reviewer import ReviewerComment
 from scholarly_revision.models.gap_analysis import GapAnalysisAssessment
 from scholarly_revision.models.reviewer import RevisionAction
+from scholarly_revision.models.revision_draft import ChangeRecord, RevisionDraft
 
 
 REVISION_WORKBOOK_SHEETS = (
@@ -70,6 +72,9 @@ REVIEWER_COMMENT_HEADERS = (
     'Required Statistics',
     'Author Decision Required',
     'Gap Analysis Confidence',
+    'Approved Draft Count',
+    'Applied Change Count',
+    'Remaining Unresolved Actions',
 )
 
 REVISION_PLAN_HEADERS = (
@@ -100,13 +105,20 @@ REVISION_PLAN_HEADERS = (
     'Evidence Request',
     'Decision Timestamp',
     'Decision Maker',
+    'Draft Status',
+    'Exact Text Approval State',
+    'Application Status',
+    'Output Version',
+    'Verified Location',
 )
 _OTHER_HEADERS = {
     'Project_Info': ('Field', 'Value'),
     'Change_Log': (
-        'Change ID', 'Comment IDs', 'Action ID', 'File', 'Change Type',
-        'Description', 'Location', 'Status', 'Highlight', 'Applied At',
-        'Applied By', 'Verified At', 'Verified By',
+        'Change ID', 'Draft ID', 'Action ID', 'Comment IDs', 'Operation',
+        'Target Section', 'Target Element ID', 'Old Text Hash',
+        'New Text Hash', 'Old Text Summary', 'New Text Summary',
+        'Highlight', 'Applied At', 'Output Version', 'Verification Status',
+        'Warnings',
     ),
     'Reference_Audit': (
         'Reference ID', 'Comment IDs', 'Temporary Number', 'Final Number',
@@ -153,6 +165,7 @@ _ENUM_VALUES = {
     'ApprovalStateValues': [item.value for item in ApprovalState],
     'HighlightValues': [item.value for item in HighlightColor],
     'ChangeTypeValues': [item.value for item in ChangeType],
+    'OperationValues': [item.value for item in RevisionOperation],
 
 
     'CoverageStatusValues': [item.value for item in CoverageStatus],
@@ -231,9 +244,9 @@ def _add_validations(workbook: Workbook) -> None:
     }.items():
         _add_validation(plan, column, name)
     for sheet_name, column, name in (
-        ('Change_Log', 5, 'ChangeTypeValues'),
-        ('Change_Log', 8, 'StatusValues'),
-        ('Change_Log', 9, 'HighlightValues'),
+        ('Change_Log', 5, 'OperationValues'),
+        ('Change_Log', 12, 'HighlightValues'),
+        ('Change_Log', 15, 'StatusValues'),
         ('Reference_Audit', 11, 'HighlightValues'),
         ('Figures_Tables', 9, 'HighlightValues'),
         ('Notation_Equations', 8, 'HighlightValues'),
@@ -287,6 +300,12 @@ def _build_dashboard(workbook: Workbook) -> None:
         ('Evidence-dependent actions', '=COUNTIF(Revision_Plan!P2:P1000,"?*")'),
         ('Experiment-dependent actions', '=COUNTIF(Revision_Plan!R2:R1000,"?*")'),
         ('Approval Gate status', 'NOT_READY'),
+        ('Drafts prepared', 0),
+        ('Drafts awaiting text approval', 0),
+        ('Text approvals completed', 0),
+        ('Changes applied', 0),
+        ('Changes blocked', 0),
+        ('Document verification status', 'NOT_RUN'),
     ]
     for metric in metrics:
         sheet.append(metric)
@@ -522,5 +541,205 @@ def update_revision_workbook(
         if dashboard.cell(row, 1).value == 'Approval Gate status':
             dashboard.cell(row, 2, status_value)
             break
+    workbook.save(destination)
+    return destination
+
+
+def _ensure_phase5_headers(worksheet: Any, headers: tuple[str, ...]) -> dict[str, int]:
+    for column, header in enumerate(headers, start=1):
+        worksheet.cell(1, column, header)
+    _format_header(worksheet, headers)
+    _format_body(worksheet, headers)
+    return _header_columns(worksheet)
+
+
+def update_revision_execution_workbook(
+    path: str | Path,
+    comments: Iterable[ReviewerComment],
+    actions: Iterable[RevisionAction],
+    drafts: Iterable[RevisionDraft],
+    changes: Iterable[ChangeRecord],
+    *,
+    output_version: str | None,
+    document_verification_status: str,
+    blocked_change_count: int = 0,
+) -> Path:
+    '''Synchronize Phase 5 state without generating reviewer-response prose.'''
+
+    destination = Path(path)
+    workbook = load_workbook(destination)
+    validated_comments = {
+        item.comment_id: ReviewerComment.model_validate(item) for item in comments
+    }
+    validated_actions = [
+        RevisionAction.model_validate(item) for item in actions
+    ]
+    validated_drafts = [
+        RevisionDraft.model_validate(item) for item in drafts
+    ]
+    validated_changes = [
+        ChangeRecord.model_validate(item) for item in changes
+    ]
+
+    reviewer = workbook['Reviewer_Comments']
+    reviewer_headers = _ensure_phase5_headers(reviewer, REVIEWER_COMMENT_HEADERS)
+    reviewer_rows: dict[str, int] = {}
+    for row in range(2, reviewer.max_row + 1):
+        value = reviewer.cell(row, reviewer_headers['Comment ID']).value
+        if value:
+            reviewer_rows[str(value)] = row
+    if set(reviewer_rows) != set(validated_comments):
+        raise ValueError('workbook comment IDs do not match reviewer inventory')
+    for comment_id, row in reviewer_rows.items():
+        if (
+            reviewer.cell(row, reviewer_headers['Original Comment']).value
+            != validated_comments[comment_id].original_comment
+        ):
+            raise ValueError(f'workbook changed exact comment text for {comment_id}')
+        linked_actions = [
+            action for action in validated_actions if comment_id in action.comment_ids
+        ]
+        linked_drafts = [
+            draft for draft in validated_drafts if comment_id in draft.comment_ids
+        ]
+        linked_changes = [
+            change for change in validated_changes if comment_id in change.comment_ids
+        ]
+        reviewer.cell(
+            row, reviewer_headers['Approved Draft Count'],
+            sum(draft.approval_state.value == 'APPROVED' for draft in linked_drafts),
+        )
+        reviewer.cell(
+            row, reviewer_headers['Applied Change Count'], len(linked_changes)
+        )
+        applied_actions = {change.action_id for change in linked_changes}
+        unresolved = sum(
+            action.action_id not in applied_actions
+            and action.approval_state.value != 'REJECTED'
+            for action in linked_actions
+        )
+        reviewer.cell(
+            row, reviewer_headers['Remaining Unresolved Actions'], unresolved
+        )
+
+    plan = workbook['Revision_Plan']
+    plan_headers = _ensure_phase5_headers(plan, REVISION_PLAN_HEADERS)
+    plan_rows = {
+        str(plan.cell(row, plan_headers['Action ID']).value): row
+        for row in range(2, plan.max_row + 1)
+        if plan.cell(row, plan_headers['Action ID']).value
+    }
+    for action in validated_actions:
+        if action.action_id not in plan_rows:
+            raise ValueError(f'workbook is missing action {action.action_id}')
+        row = plan_rows[action.action_id]
+        linked = [
+            draft for draft in validated_drafts if draft.action_id == action.action_id
+        ]
+        linked_changes = [
+            change for change in validated_changes if change.action_id == action.action_id
+        ]
+        plan.cell(
+            row, plan_headers['Draft Status'],
+            _join(draft.draft_status for draft in linked),
+        )
+        plan.cell(
+            row, plan_headers['Exact Text Approval State'],
+            _join(draft.approval_state for draft in linked),
+        )
+        plan.cell(
+            row, plan_headers['Application Status'],
+            'APPLIED' if linked_changes else (
+                _join(draft.application_status for draft in linked) or 'NOT_APPLIED'
+            ),
+        )
+        plan.cell(
+            row, plan_headers['Output Version'],
+            output_version if linked_changes else None,
+        )
+        plan.cell(
+            row, plan_headers['Verified Location'],
+            _join(change.target_element_id for change in linked_changes),
+        )
+
+    change_sheet = workbook['Change_Log']
+    change_headers = _ensure_phase5_headers(
+        change_sheet, _OTHER_HEADERS['Change_Log']
+    )
+    if change_sheet.max_row > 1:
+        change_sheet.delete_rows(2, change_sheet.max_row - 1)
+    for record in validated_changes:
+        values = {
+            'Change ID': record.change_id,
+            'Draft ID': record.draft_id,
+            'Action ID': record.action_id,
+            'Comment IDs': _join(record.comment_ids),
+            'Operation': record.operation.value,
+            'Target Section': record.target_section,
+            'Target Element ID': record.target_element_id,
+            'Old Text Hash': record.old_text_hash,
+            'New Text Hash': record.new_text_hash,
+            'Old Text Summary': record.old_text_summary,
+            'New Text Summary': record.new_text_summary,
+            'Highlight': record.highlight.value,
+            'Applied At': record.application_timestamp.isoformat(),
+            'Output Version': record.output_document_version,
+            'Verification Status': record.verification_status,
+            'Warnings': _join(record.warnings),
+        }
+        row = change_sheet.max_row + 1
+        for header, value in values.items():
+            change_sheet.cell(row, change_headers[header], value)
+
+    response = workbook['Response_Map']
+    response_headers = _header_columns(response)
+    if response.max_row > 1:
+        response.delete_rows(2, response.max_row - 1)
+    for index, comment in enumerate(validated_comments.values(), start=1):
+        linked = [
+            change for change in validated_changes
+            if comment.comment_id in change.comment_ids
+        ]
+        response.append([
+            f'RESP-MAP-{index:04d}',
+            comment.comment_id,
+            True,
+            None,
+            _join(f'{change.change_id}:{change.operation.value}' for change in linked),
+            _join(change.target_element_id for change in linked),
+            'APPLIED' if linked else 'DRAFTED',
+            comment.highlight.value,
+            False,
+            'Mapping prepared; final reviewer response has not been generated.',
+        ])
+
+    dashboard = workbook['Dashboard']
+    metrics = {
+        'Drafts prepared': len(validated_drafts),
+        'Drafts awaiting text approval': sum(
+            draft.approval_state.value == 'PENDING' for draft in validated_drafts
+        ),
+        'Text approvals completed': sum(
+            draft.approval_state.value == 'APPROVED' for draft in validated_drafts
+        ),
+        'Changes applied': len(validated_changes),
+        'Changes blocked': blocked_change_count,
+        'Document verification status': document_verification_status,
+    }
+    dashboard_rows = {
+        str(dashboard.cell(row, 1).value): row
+        for row in range(1, dashboard.max_row + 1)
+        if dashboard.cell(row, 1).value
+    }
+    for metric, value in metrics.items():
+        row = dashboard_rows.get(metric)
+        if row is None:
+            row = dashboard.max_row + 1
+            dashboard.cell(row, 1, metric)
+        dashboard.cell(row, 2, value)
+
+    _format_body(reviewer, REVIEWER_COMMENT_HEADERS)
+    _format_body(plan, REVISION_PLAN_HEADERS)
+    _format_body(change_sheet, _OTHER_HEADERS['Change_Log'])
     workbook.save(destination)
     return destination

@@ -24,6 +24,7 @@ from scholarly_revision.models import (  # noqa: E402
     ResponseLetterEntry,
     ReviewerComment,
     RevisionAction,
+    RevisionDraft,
     TraceabilityRecord,
 )
 
@@ -33,6 +34,7 @@ SCHEMA_MODELS: tuple[tuple[str, ModelType], ...] = (
     ('project-manifest.schema.json', ProjectManifest),
     ('reviewer-comment.schema.json', ReviewerComment),
     ('revision-action.schema.json', RevisionAction),
+    ('revision-draft.schema.json', RevisionDraft),
     ('evidence-record.schema.json', EvidenceRecord),
     ('experimental-result-record.schema.json', ExperimentalResultRecord),
     ('reference-record.schema.json', ReferenceRecord),
