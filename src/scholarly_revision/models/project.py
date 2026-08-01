@@ -90,6 +90,8 @@ class InputFiles(BaseModel):
     result_registry: str | None = None
     reference_registry: str | None = None
     response_sample: str | None = None
+    previous_manuscript: str | None = None
+    journal_template: str | None = None
 
 
 class OutputNames(BaseModel):

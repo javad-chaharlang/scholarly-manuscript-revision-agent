@@ -28,12 +28,12 @@ def test_upload_names_and_secret_redaction() -> None:
 
 
 def test_all_pages_and_local_launcher_command() -> None:
-    assert len(PAGES) == 14
+    assert len(PAGES) == 16
     assert list(PAGES) == [
-        'Dashboard', 'New Project', 'Input Files', 'Reviewer Comments',
+        'Dashboard', 'Projects', 'New Project', 'Input Files', 'Reviewer Comments',
         'Gap Analysis', 'Revision Plan', 'Text Approval',
         'Manuscript Versions', 'Reference Audit', 'Scientific QA',
-        'Response Letter', 'Visual QA', 'Final Release', 'Settings',
+        'Response Letter', 'Visual QA', 'Final Release', 'Audit Timeline', 'Settings',
     ]
     command = build_command(port=8765, headless=True)
     assert str(APP) in command
@@ -46,4 +46,5 @@ def test_streamlit_app_loads_without_browser() -> None:
     app = testing.AppTest.from_file(str(APP))
     app.run(timeout=20)
     assert not app.exception
-    assert app.sidebar.radio
+    assert len(app.sidebar.text_input) == 2
+    assert not app.exception

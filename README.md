@@ -35,6 +35,22 @@ An agentic research workflow for revising scholarly manuscripts and preparing co
 
 Unpublished manuscripts, reviewer files, experimental results, API keys, author information, and project workspaces must not be committed to this repository.
 
+## Scholarly Revision Studio
+
+Phase 9 provides a production-oriented local Streamlit workspace with grouped
+top navigation, a persisted project portfolio, a five-step intake wizard,
+state-aware workflow dashboards, explicit approval gates, bilingual
+English/Persian infrastructure, visual QA, and immutable release controls.
+
+Start it with:
+
+    python -m pip install -e .
+    python scripts/run_app.py
+
+Use only a confidential workspace outside this Git repository. See
+`docs/user-interface-guide.md`, `docs/phase9-interface-overview.md`, and
+`docs/ui-quality-checklist.md`.
+
 ## Development status
 
-Version 0.1.0 — Initial project setup
+Version 0.3.0 — deterministic workflow through the Phase 9 interface

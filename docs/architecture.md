@@ -1,6 +1,20 @@
 # Architecture
 
-## Phase 1 scope
+## Phase 9 presentation architecture
+
+The application entry point is `scholarly_revision.ui.studio_app`. It builds
+all pages explicitly with `st.navigation` and `st.Page`; file names do not
+control navigation order. The reusable design layer contains tokens, theme,
+layout, navigation, Material icons, translations, and native Streamlit
+components. Custom static CSS is isolated in `ui/theme.py`.
+
+Pages are intentionally thin. They load safe derived metadata and invoke the
+unified orchestrator for state-changing work. The orchestrator and persisted
+state machine remain authoritative for action availability, approvals,
+immutable versions, QA blockers, response verification, and release.
+Confidential project content remains in an external local workspace.
+
+## Historical Phase 1 scope
 
 Phase 1 establishes policy, workflow, configuration, and skill guidance. It
 does not implement application logic, external API integration, or manuscript

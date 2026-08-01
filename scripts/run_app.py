@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = ROOT / 'src' / 'scholarly_revision' / 'ui' / 'app.py'
+APP = ROOT / 'src' / 'scholarly_revision' / 'ui' / 'studio_app.py'
 
 
 def build_command(*, port: int, headless: bool) -> list[str]:

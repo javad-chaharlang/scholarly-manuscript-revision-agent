@@ -3,6 +3,24 @@
     "ProjectRegistryEntry": {
       "additionalProperties": false,
       "properties": {
+        "archived": {
+          "default": false,
+          "title": "Archived",
+          "type": "boolean"
+        },
+        "archived_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Archived At"
+        },
         "created_at": {
           "format": "date-time",
           "title": "Created At",

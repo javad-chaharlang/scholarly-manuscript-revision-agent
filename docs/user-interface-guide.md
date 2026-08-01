@@ -1,6 +1,10 @@
-# Local user interface guide
+# Scholarly Revision Studio user interface guide
 
-Phase 8 provides a fully local Streamlit interface over the repository's
+> Screenshot placeholders and the real-project pilot are documented in
+> `phase9-interface-overview.md`. Use `ui-quality-checklist.md` for manual
+> light/dark, desktop/narrow, English/Persian, accessibility, and artifact QA.
+
+Phase 9 provides a fully local Streamlit interface over the repository's
 deterministic intake, gap-analysis, revision-execution, scientific-QA,
 response, visual-QA, and release services. It does not call the OpenAI API and
 does not perform network research.
@@ -44,7 +48,7 @@ confidential text into logs.
 
 ## New Project wizard
 
-The wizard collects:
+The five-step wizard collects:
 
 - project name, manuscript ID and title, journal, and revision round;
 - reviewer count, manuscript and response languages, and citation style;
@@ -55,6 +59,20 @@ The wizard collects:
 
 Existing project directories are never replaced by the UI. Create a distinct
 project name when a slug already exists.
+
+Before creation, the confirmation step displays file sizes and SHA-256 hashes,
+validates DOCX structure, rejects zero-byte or empty reviewer files, and
+reiterates the external-workspace privacy boundary.
+
+## Navigation and appearance
+
+Grouped top navigation follows workflow order and is built explicitly with
+`st.navigation` and `st.Page`. The shared shell shows selected project,
+manuscript ID, workflow state, readiness, journal, round, decision maker,
+abbreviated workspace, privacy status, last-save time, and a clickable
+workflow stepper. Streamlit settings provide separate light and dark themes.
+English is the default; Persian labels use RTL while manuscript content
+direction remains independent.
 
 ## Project states and actions
 

@@ -1,17 +1,36 @@
 app:
-  title: Scholarly Manuscript Revision
+  title: Scholarly Revision Studio
   address: localhost
   port: 8501
   headless: false
   gather_usage_stats: false
+  navigation: top
+  default_language: en
 privacy:
   require_external_workspace: true
   log_confidential_text: false
   display_secrets: false
+  external_requests: false
 workflow:
   infer_approvals: false
   require_destructive_confirmation: true
   require_final_release_confirmation: true
+  persist_project_state: true
+design:
+  brand:
+    navy: '#0F172A'
+    indigo: '#4F46E5'
+    blue: '#2563EB'
+    cyan: '#06B6D4'
+    background: '#F6F8FC'
+    card: '#FFFFFF'
+    primary_text: '#111827'
+    secondary_text: '#64748B'
+    success: '#059669'
+    warning: '#D97706'
+    danger: '#DC2626'
+  radius: 10
+  responsive_breakpoint: 900
 highlight_policy:
   reviewer_1: YELLOW
   reviewer_2: BRIGHT_GREEN

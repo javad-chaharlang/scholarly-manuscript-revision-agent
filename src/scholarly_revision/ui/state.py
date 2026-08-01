@@ -12,6 +12,7 @@ SESSION_DEFAULTS: dict[str, Any] = {
     'project_id': None,
     'project_root': None,
     'actor': '',
+    'ui_language': 'en',
 }
 
 
@@ -53,7 +54,10 @@ def save_uploaded_file(upload: Any, directory: str | Path) -> Path:
     target = target_dir / safe_upload_name(str(upload.name))
     if target.exists():
         raise FileExistsError(f'staging file already exists: {target.name}')
-    target.write_bytes(upload.getvalue())
+    payload = upload.getvalue()
+    if not payload:
+        raise ValueError(f'uploaded file is empty: {target.name}')
+    target.write_bytes(payload)
     return target
 
 

@@ -84,6 +84,8 @@ class ProjectRegistryEntry(BaseModel):
     state: ProjectState
     created_at: datetime
     updated_at: datetime
+    archived: bool = False
+    archived_at: datetime | None = None
 
     @field_validator('project_root')
     @classmethod

@@ -1,12 +1,56 @@
-﻿[browser]
+[browser]
 gatherUsageStats = false
-serverAddress = "localhost"
-serverPort = 8501
 
 [server]
 headless = false
-address = "localhost"
+address = 'localhost'
 port = 8501
 
 [runner]
 enforceSerializableSessionState = true
+
+[theme]
+baseRadius = '10px'
+buttonRadius = '10px'
+showWidgetBorder = true
+showSidebarBorder = true
+font = 'sans-serif'
+headingFont = 'sans-serif'
+baseFontSize = 15
+chartCategoricalColors = ['#4F46E5', '#2563EB', '#06B6D4', '#059669', '#D97706', '#DC2626', '#64748B']
+greenColor = '#059669'
+orangeColor = '#D97706'
+redColor = '#DC2626'
+blueColor = '#2563EB'
+violetColor = '#4F46E5'
+grayColor = '#64748B'
+
+[theme.light]
+primaryColor = '#4F46E5'
+backgroundColor = '#F6F8FC'
+secondaryBackgroundColor = '#FFFFFF'
+textColor = '#111827'
+borderColor = '#DCE3EE'
+dataframeHeaderBackgroundColor = '#EEF2FF'
+
+[theme.dark]
+primaryColor = '#818CF8'
+backgroundColor = '#0F172A'
+secondaryBackgroundColor = '#172033'
+textColor = '#F8FAFC'
+borderColor = '#334155'
+dataframeHeaderBackgroundColor = '#1E293B'
+
+[theme.light.sidebar]
+backgroundColor = '#0F172A'
+secondaryBackgroundColor = '#172033'
+textColor = '#F8FAFC'
+borderColor = '#334155'
+primaryColor = '#06B6D4'
+
+[theme.dark.sidebar]
+backgroundColor = '#020617'
+secondaryBackgroundColor = '#0F172A'
+textColor = '#F8FAFC'
+borderColor = '#1E293B'
+primaryColor = '#22D3EE'

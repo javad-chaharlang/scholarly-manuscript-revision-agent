@@ -73,6 +73,8 @@ class NewProjectRequest:
     result_registry: Path | None = None
     reference_registry: Path | None = None
     response_sample: Path | None = None
+    previous_manuscript: Path | None = None
+    journal_template: Path | None = None
 
 
 ACTION_STATES: dict[str, set[ProjectState]] = {
@@ -162,6 +164,8 @@ class OrchestratorService:
             ('manuscript file', request.manuscript_file),
             ('editor letter', request.editor_letter),
             ('response sample', request.response_sample),
+            ('previous manuscript', request.previous_manuscript),
+            ('journal template', request.journal_template),
         ):
             if path is None:
                 continue
@@ -193,12 +197,15 @@ class OrchestratorService:
         optional: dict[str, str | None] = {
             'editor_letter': None, 'result_registry': None,
             'reference_registry': None, 'response_sample': None,
+            'previous_manuscript': None, 'journal_template': None,
         }
         for role, source in (
             ('editor_letter', request.editor_letter),
             ('result_registry', request.result_registry),
             ('reference_registry', request.reference_registry),
             ('response_sample', request.response_sample),
+            ('previous_manuscript', request.previous_manuscript),
+            ('journal_template', request.journal_template),
         ):
             if source is not None:
                 optional[role] = copy_input_file(source, result.workspace, role).name

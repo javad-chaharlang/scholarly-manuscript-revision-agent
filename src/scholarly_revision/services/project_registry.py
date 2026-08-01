@@ -62,10 +62,14 @@ class ProjectRegistry:
             Path(temporary).unlink(missing_ok=True)
             raise
 
-    def list_projects(self, *, existing_only: bool = True) -> list[ProjectRegistryEntry]:
+    def list_projects(
+        self, *, existing_only: bool = True, include_archived: bool = False,
+    ) -> list[ProjectRegistryEntry]:
         projects = self._load_file().projects
         if existing_only:
             projects = [item for item in projects if Path(item.project_root).is_dir()]
+        if not include_archived:
+            projects = [item for item in projects if not item.archived]
         return sorted(projects, key=lambda item: item.updated_at, reverse=True)
 
     def get(self, project_id: str) -> ProjectRegistryEntry:
@@ -110,6 +114,27 @@ class ProjectRegistry:
             if entry.project_id == project_id:
                 found = entry.model_copy(update={
                     'state': state, 'updated_at': datetime.now(UTC),
+                })
+                updated.append(found)
+            else:
+                updated.append(entry)
+        if found is None:
+            raise KeyError(f'project is not registered: {project_id}')
+        self._save_file(ProjectRegistryFile(projects=updated))
+        return found
+
+    def set_archived(self, project_id: str, *, archived: bool) -> ProjectRegistryEntry:
+        '''Hide or restore a registry entry without touching project files.'''
+        registry = self._load_file()
+        found: ProjectRegistryEntry | None = None
+        updated: list[ProjectRegistryEntry] = []
+        now = datetime.now(UTC)
+        for entry in registry.projects:
+            if entry.project_id == project_id:
+                found = entry.model_copy(update={
+                    'archived': archived,
+                    'archived_at': now if archived else None,
+                    'updated_at': now,
                 })
                 updated.append(found)
             else:
