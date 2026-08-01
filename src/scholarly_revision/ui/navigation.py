@@ -35,10 +35,16 @@ PAGE_SPECS = (
     PageSpec('visual_qa', 'Visual QA', 'visual_qa', 'Quality Assurance', ICONS['visual_qa'], 'visual-qa'),
     PageSpec('final_release', 'Final Release', 'final_release', 'Release', ICONS['final_release'], 'final-release'),
     PageSpec('audit_timeline', 'Audit Timeline', 'audit_timeline', 'Release', ICONS['audit_timeline'], 'audit-timeline'),
+    PageSpec('agent_tasks', 'Agent Tasks', 'agent_tasks', 'System', ICONS['agent_tasks'], 'agent-tasks'),
     PageSpec('settings', 'Settings', 'settings', 'System', ICONS['settings'], 'settings', False),
 )
 
-NAVIGATION_ORDER = tuple(spec.title for spec in PAGE_SPECS)
+# Retained as the Phase 9 workflow-order compatibility surface. System
+# extensions such as Agent Tasks are represented in PAGE_SPECS and the live
+# navigation without changing the established workflow tuple.
+NAVIGATION_ORDER = tuple(
+    spec.title for spec in PAGE_SPECS if spec.key != 'agent_tasks'
+)
 NAVIGATION_GROUPS = tuple(dict.fromkeys(spec.group for spec in PAGE_SPECS))
 
 STATE_ORDER = (
@@ -63,6 +69,7 @@ PAGE_MIN_STATE = {
     'visual_qa': ProjectState.VISUAL_QA,
     'final_release': ProjectState.READY_FOR_RELEASE,
     'audit_timeline': ProjectState.NEW,
+    'agent_tasks': ProjectState.NEW,
 }
 
 

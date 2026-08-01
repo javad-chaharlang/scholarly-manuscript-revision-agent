@@ -1,6 +1,9 @@
 from __future__ import annotations
 from pathlib import Path
 import streamlit as st
+from scholarly_revision.models.agent_context import ContextPolicy
+from scholarly_revision.models.agent_task import AgentTaskType
+from scholarly_revision.ui.agent_controls import render_agent_task_launcher
 from scholarly_revision.models.enums import ApprovalDecision
 from scholarly_revision.ui.components.studio import empty_state, load_json, page_header, state_banner
 from scholarly_revision.ui.state import redact_exception
@@ -15,6 +18,15 @@ def render(orchestrator, project_root, actor) -> None:
     st.badge(str(plan.get('approval_gate_status', 'NOT_READY')).replace('_', ' ').title(), color='orange')
     action_id = st.selectbox('Select action', [i['action_id'] for i in actions], key='plan_action')
     action = next(i for i in actions if i['action_id'] == action_id)
+    render_agent_task_launcher(
+        root, actor, task_type=AgentTaskType.REVISION_PLAN_DRAFT,
+        label='Generate draft plan with Codex',
+        purpose='Draft pending revision actions for the selected reviewer scope.',
+        key=f'agent_plan_{action_id}', comment_ids=action.get('comment_ids', []),
+        action_ids=[action_id],
+        element_ids=[action['target_object']] if action.get('target_object') else [],
+        context_policy=ContextPolicy.EXTENDED_SECTION_CONTEXT,
+    )
     with st.container(border=True):
         st.subheader(action_id, anchor=False)
         st.caption(f"Comments: {', '.join(action.get('comment_ids', []))} · {action.get('change_type')} · {action.get('target_section')}")

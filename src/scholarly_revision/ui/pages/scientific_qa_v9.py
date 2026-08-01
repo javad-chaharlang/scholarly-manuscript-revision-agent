@@ -2,6 +2,9 @@ from __future__ import annotations
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import streamlit as st
+from scholarly_revision.models.agent_context import ContextPolicy
+from scholarly_revision.models.agent_task import AgentTaskType
+from scholarly_revision.ui.agent_controls import render_agent_task_launcher
 from scholarly_revision.ui.components.studio import download, empty_state, kpis, load_json, page_header, state_banner
 from scholarly_revision.ui.state import redact_exception, save_uploaded_file
 
@@ -17,6 +20,13 @@ def render(orchestrator, project_root, actor) -> None:
                 orchestrator.run_scientific_qa(root, actor=actor)
             st.success('Scientific QA completed without external requests.'); st.rerun()
         except Exception as exc: st.error(redact_exception(exc))
+    render_agent_task_launcher(
+        root, actor, task_type=AgentTaskType.SEMANTIC_QA_REVIEW,
+        label='Run optional Semantic QA with Codex',
+        purpose='Review supplied QA and result records for semantic concerns; deterministic QA remains primary.',
+        key='agent_semantic_qa', context_policy=ContextPolicy.RESULTS_CONTEXT,
+    )
+    st.caption('Semantic findings use a separate optional lane and never replace deterministic findings.')
     report = load_json(root / 'audit' / 'scientific_qa_report.json', {})
     if not report: empty_state('No QA report', 'Apply verified revisions, then run the audit.'); return
     severity = report.get('count_by_severity', {})

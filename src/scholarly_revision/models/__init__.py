@@ -22,6 +22,17 @@ from scholarly_revision.models.revision_draft import (
     RevisionTextDecisionRecord,
 )
 from scholarly_revision.models.traceability import ResponseLetterEntry, TraceabilityRecord
+from scholarly_revision.models.agent_context import (
+    AgentContextManifest, ContextManuscriptSection, ContextPolicy,
+    ContextReviewerComment,
+)
+from scholarly_revision.models.agent_run import (
+    AgentAuthorDecision, AgentRun, AgentRunStatus,
+)
+from scholarly_revision.models.agent_task import (
+    AgentTask, AgentTaskPriority, AgentTaskStatus, AgentTaskType,
+    TransmissionDecision,
+)
 from scholarly_revision.models.response_package import (
     CommentResolution, EditorCoverLetter, LocationStatus, ResponseEntry,
     ResponsePackage, ResponseStatus, ReviewerResponseSection,
@@ -34,6 +45,10 @@ from scholarly_revision.models.release import (
 )
 
 __all__ = [
+    'AgentAuthorDecision', 'AgentContextManifest', 'AgentRun', 'AgentRunStatus',
+    'AgentTask', 'AgentTaskPriority', 'AgentTaskStatus', 'AgentTaskType',
+    'ContextManuscriptSection', 'ContextPolicy', 'ContextReviewerComment',
+    'TransmissionDecision',
     'ActionProposal',
     'ApprovalRecord',
     'ChangeRecord',

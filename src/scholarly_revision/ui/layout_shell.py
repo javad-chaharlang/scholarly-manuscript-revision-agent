@@ -14,15 +14,23 @@ from scholarly_revision.ui.i18n import LANGUAGES, status_label, t
 from scholarly_revision.ui.layout import abbreviate_path, state_progress, workflow_step_states
 from scholarly_revision.ui.state import redact_exception
 
+def _privacy_badges() -> None:
+    with st.container(horizontal=True):
+        st.badge(
+            'Local storage',
+            icon=':material/save:', color='green',
+        )
+        st.badge(
+            'AI transmission requires approval',
+            icon=':material/privacy_tip:', color='orange',
+        )
+
 
 def render_sidebar_brand() -> None:
     with st.sidebar:
         product = t('product', st.session_state)
         st.markdown(f'## :material/science: {product}')
-        st.badge(
-            t('local_confidential', st.session_state),
-            icon=':material/lock:', color='green',
-        )
+        _privacy_badges()
         current_code = st.session_state.get('ui_language', 'en')
         current_name = next(
             (name for name, code in LANGUAGES.items() if code == current_code),
@@ -107,10 +115,7 @@ def render_sidebar_system_controls(
 
 def render_welcome_context(page_handles: Mapping[str, Any]) -> None:
     with st.container(border=True, key='srs_welcome_hero'):
-        st.badge(
-            t('local_confidential', st.session_state),
-            icon=':material/lock:', color='green',
-        )
+        _privacy_badges()
         product = t('product', st.session_state)
         st.markdown(f'# {product}')
         st.markdown(t('value_proposition', st.session_state))
@@ -142,10 +147,7 @@ def render_project_context(project_root: str, orchestrator: Any) -> None:
     modified = datetime.fromtimestamp(root.stat().st_mtime).astimezone()
     with st.container(border=True, key='srs_context_bar'):
         with st.container(horizontal=True):
-            st.badge(
-                t('local_confidential', st.session_state),
-                icon=':material/lock:', color='green',
-            )
+            _privacy_badges()
             readiness = str(data.get('release_readiness', 'NOT_EVALUATED'))
             st.badge(
                 status_label(readiness, st.session_state),

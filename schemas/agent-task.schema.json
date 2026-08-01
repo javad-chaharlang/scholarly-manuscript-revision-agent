@@ -1,0 +1,270 @@
+{
+  "$defs": {
+    "AgentTaskPriority": {
+      "enum": [
+        "LOW",
+        "NORMAL",
+        "HIGH"
+      ],
+      "title": "AgentTaskPriority",
+      "type": "string"
+    },
+    "AgentTaskStatus": {
+      "enum": [
+        "CREATED",
+        "CONTEXT_READY",
+        "WAITING_FOR_TRANSMISSION_APPROVAL",
+        "QUEUED",
+        "RUNNING",
+        "COMPLETED_RAW",
+        "VALIDATING",
+        "VALIDATED",
+        "AUTHOR_REVIEW",
+        "APPROVED",
+        "REJECTED",
+        "IMPORTED",
+        "FAILED",
+        "CANCELLED",
+        "BLOCKED"
+      ],
+      "title": "AgentTaskStatus",
+      "type": "string"
+    },
+    "AgentTaskType": {
+      "enum": [
+        "COMMENT_INTERPRETATION",
+        "GAP_ANALYSIS",
+        "REVISION_PLAN_DRAFT",
+        "REVISION_TEXT_DRAFT",
+        "REFERENCE_NEED_ANALYSIS",
+        "SEMANTIC_QA_REVIEW",
+        "RESPONSE_LETTER_DRAFT",
+        "GENERAL_RESEARCH_NOTE"
+      ],
+      "title": "AgentTaskType",
+      "type": "string"
+    },
+    "TransmissionDecision": {
+      "enum": [
+        "APPROVE_TRANSMISSION",
+        "MODIFY_CONTEXT",
+        "CANCEL_TASK"
+      ],
+      "title": "TransmissionDecision",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One immutable-scope semantic request; approval is always explicit.",
+  "properties": {
+    "active_run_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Active Run Id"
+    },
+    "approval_required": {
+      "default": true,
+      "title": "Approval Required",
+      "type": "boolean"
+    },
+    "cancel_requested": {
+      "default": false,
+      "title": "Cancel Requested",
+      "type": "boolean"
+    },
+    "context_manifest_sha256": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Context Manifest Sha256"
+    },
+    "context_policy": {
+      "minLength": 1,
+      "title": "Context Policy",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "created_by": {
+      "minLength": 1,
+      "title": "Created By",
+      "type": "string"
+    },
+    "last_error_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Error Code"
+    },
+    "last_error_message": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Error Message"
+    },
+    "priority": {
+      "$ref": "#/$defs/AgentTaskPriority",
+      "default": "NORMAL"
+    },
+    "project_id": {
+      "minLength": 1,
+      "title": "Project Id",
+      "type": "string"
+    },
+    "prompt_template": {
+      "minLength": 1,
+      "title": "Prompt Template",
+      "type": "string"
+    },
+    "purpose": {
+      "minLength": 1,
+      "title": "Purpose",
+      "type": "string"
+    },
+    "related_action_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Related Action Ids",
+      "type": "array"
+    },
+    "related_comment_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Related Comment Ids",
+      "type": "array"
+    },
+    "requested_output_schema": {
+      "minLength": 1,
+      "title": "Requested Output Schema",
+      "type": "string"
+    },
+    "retry_instruction": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retry Instruction"
+    },
+    "retry_of_task_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retry Of Task Id"
+    },
+    "source_element_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Element Ids",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/AgentTaskStatus",
+      "default": "CREATED"
+    },
+    "task_id": {
+      "pattern": "^TASK-[A-Z0-9-]{8,}$",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "task_type": {
+      "$ref": "#/$defs/AgentTaskType"
+    },
+    "transmission_approved_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transmission Approved At"
+    },
+    "transmission_approved_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transmission Approved By"
+    },
+    "transmission_decision": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TransmissionDecision"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "project_id",
+    "task_type",
+    "requested_output_schema",
+    "context_policy",
+    "prompt_template",
+    "created_by",
+    "created_at",
+    "updated_at",
+    "purpose"
+  ],
+  "title": "AgentTask",
+  "type": "object"
+}

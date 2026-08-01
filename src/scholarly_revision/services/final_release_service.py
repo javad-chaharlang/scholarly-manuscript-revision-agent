@@ -48,6 +48,7 @@ RELEASE_CHECK_CATEGORIES = (
     'release manifest complete',
     'rendered Word documents visually inspected',
     'final human release approval recorded',
+    'Pilot Mode checks explicitly approved',
 )
 
 
@@ -93,6 +94,17 @@ def evaluate_final_release(
     consistency = [ConsistencyFinding.model_validate(item) for item in findings]
     qa = sources['qa']
     approval = _approval(root, final_approval)
+    agent_settings_path = root / 'config' / 'agent_settings.json'
+    agent_settings = read_json(agent_settings_path) if agent_settings_path.is_file() else {}
+    pilot_mode = agent_settings.get('pilot_mode') is True
+    pilot_path = root / 'audit' / 'pilot_checks.json'
+    pilot_checks = read_json(pilot_path) if pilot_path.is_file() else {}
+    pilot_approved = (
+        not pilot_mode
+        or pilot_checks.get('approved') is True
+        and bool(pilot_checks.get('decision_maker'))
+        and bool(pilot_checks.get('decision_timestamp'))
+    )
     approved = approval.get('approved') is True or approval.get('decision') == 'APPROVE'
     approver = approval.get('decision_maker') or approval.get('approved_by')
     approved_at = approval.get('decision_timestamp') or approval.get('approved_at')
@@ -224,10 +236,13 @@ def evaluate_final_release(
             notes=None if visual_complete else 'MANUAL_VISUAL_QA_REQUIRED',
         ),
         _check(RELEASE_CHECK_CATEGORIES[19], approved),
+        _check(RELEASE_CHECK_CATEGORIES[20], pilot_approved),
     ]
     prohibited_failures = {
         RELEASE_CHECK_CATEGORIES[index] for index in (1, 2, 4, 5, 8, 9)
     }
+    if pilot_mode:
+        prohibited_failures.add(RELEASE_CHECK_CATEGORIES[20])
     failed_required = [item for item in checks if item.required and not item.passed]
     if blocking or qa_blockers or any(
         item.category in prohibited_failures for item in failed_required

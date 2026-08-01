@@ -4,10 +4,11 @@
 > `phase9-interface-overview.md`. Use `ui-quality-checklist.md` for manual
 > light/dark, desktop/narrow, English/Persian, accessibility, and artifact QA.
 
-Phase 9 provides a fully local Streamlit interface over the repository's
+Phase 10 provides a local-first Streamlit interface over the repository's
 deterministic intake, gap-analysis, revision-execution, scientific-QA,
-response, visual-QA, and release services. It does not call the OpenAI API and
-does not perform network research.
+response, visual-QA, and release services. Optional Codex CLI semantic tasks
+can transmit an explicitly approved minimal context package. The application
+does not call the OpenAI API directly and does not require an API key.
 
 ## Start the application
 
@@ -33,6 +34,8 @@ uses the existing private layout:
       rendered/
       audit/
       config/
+      agent_runs/
+      backups/
 
 The workspace-level project registry is
 <workspace>/.scholarly_revision/registry.json. It contains safe project
@@ -118,8 +121,21 @@ and the read-only audit timeline.
     every mandatory artifact. No visual approval is inferred.
 13. **Final Release** shows every mandatory check and requires the exact
     confirmation RELEASE <project-id> before creating an immutable package.
-14. **Settings** records the local decision-maker label and displays the fixed
-    highlight policy and registry location.
+14. **Agent Tasks** creates persistent semantic tasks, shows exact context,
+    enforces transmission and import approval, polls background runs, exposes
+    raw and validated output, and records Pilot Mode checks.
+15. **Settings** includes Codex executable, detected version, authentication
+    health, supported flags, timeout, context warning threshold, concurrency,
+    Pilot Mode, semantic-task toggle, warning text, and local audit location.
+
+Relevant workflow pages provide contextual one-task launchers. These create a
+task only; they do not prepare context, transmit content, or infer approval.
+Use Agent Tasks to perform Review Context, Approve Transmission, Run with
+Codex, Approve Import, and Import approved output in order.
+
+For cancellation, select the active task and choose Cancel. For an interrupted
+run, inspect raw/audit files and choose explicit cancel or Retry with
+Instruction. Application restart does not lose the disk-backed task history.
 
 Tables that contain governed records are read-only. Author-editable content is
 limited to explicit forms or downloaded structured templates that are

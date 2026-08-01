@@ -1,6 +1,6 @@
 # Architecture
 
-## Phase 9 presentation architecture
+## Phase 10 application architecture
 
 The application entry point is `scholarly_revision.ui.studio_app`. It builds
 all pages explicitly with `st.navigation` and `st.Page`; file names do not
@@ -13,6 +13,20 @@ unified orchestrator for state-changing work. The orchestrator and persisted
 state machine remain authoritative for action availability, approvals,
 immutable versions, QA blockers, response verification, and release.
 Confidential project content remains in an external local workspace.
+
+The optional semantic lane is split into four boundaries: AgentTaskService
+governs task and human-gate transitions; AgentContextService builds and
+redacts the exact author-reviewable payload; AgentWorkerService runs a
+separate process around CodexBridgeService; and
+AgentOutputValidationService validates every response before author review.
+AgentRunRegistry persists atomic task, context, run, and audit records on disk.
+Streamlit polls only safe metadata and therefore does not own task truth.
+
+Codex CLI capabilities are detected from the installed executable and
+`codex exec --help`. The bridge uses direct subprocess arguments, stdin,
+explicit cwd, read-only sandboxing when available, bounded timeout, separated
+stdout and stderr, cancellation, and no shell. The currently authenticated
+CLI session is used; there is no direct API client or API-key requirement.
 
 ## Historical Phase 1 scope
 
@@ -103,11 +117,11 @@ The workflow will produce:
 All outputs remain in the confidential local workspace unless an explicitly
 approved, anonymized artifact is intended for source control.
 
-## Future runtime option
+## Semantic runtime boundary
 
-The initial workflow uses Codex directly for reasoning and orchestration. A
-future implementation may optionally migrate orchestration to the OpenAI
-Agents SDK when multi-agent handoffs, persisted runs, formal tool contracts, or
-production observability justify that complexity. Such a migration is not
-required for Phase 1 and must preserve the same integrity rules, approval
-gates, deterministic processing boundary, and local confidentiality model.
+Codex proposes schema-constrained semantic records only. It never edits the
+original manuscript or marks a scientific action approved, applied, verified,
+or released. Deterministic workflows remain responsible for Word mutation,
+hash verification, QA, rendering, and packaging. Gate 1, Gate 2, transmission,
+import, Pilot Mode, visual-QA, and final-release decisions require explicit
+named human records.

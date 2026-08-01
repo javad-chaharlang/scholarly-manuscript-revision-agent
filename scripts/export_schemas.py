@@ -16,6 +16,9 @@ if str(SOURCE_ROOT) not in sys.path:
     sys.path.insert(0, str(SOURCE_ROOT))
 
 from scholarly_revision.models import (  # noqa: E402
+    AgentContextManifest,
+    AgentRun,
+    AgentTask,
     AuditIssue,
     ScientificQAReport,
     EvidenceRecord,
@@ -41,6 +44,9 @@ from scholarly_revision.models import (  # noqa: E402
 
 ModelType: TypeAlias = type[BaseModel]
 SCHEMA_MODELS: tuple[tuple[str, ModelType], ...] = (
+    ('agent-task.schema.json', AgentTask),
+    ('agent-run.schema.json', AgentRun),
+    ('agent-context.schema.json', AgentContextManifest),
     ('project-manifest.schema.json', ProjectManifest),
     ('project-state.schema.json', ProjectStateRecord),
     ('project-registry.schema.json', ProjectRegistryFile),

@@ -3,6 +3,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import pandas as pd
 import streamlit as st
+from scholarly_revision.models.agent_context import ContextPolicy
+from scholarly_revision.models.agent_task import AgentTaskType
+from scholarly_revision.ui.agent_controls import render_agent_task_launcher
 from scholarly_revision.ui.components.studio import download, empty_state, kpis, load_json, page_header, state_banner
 from scholarly_revision.ui.state import redact_exception, save_uploaded_file
 
@@ -11,6 +14,20 @@ def render(orchestrator, project_root, actor) -> None:
                 icon=':material/find_in_page:')
     state_banner(orchestrator, project_root); root = Path(project_root)
     allowed = orchestrator.available_actions(root)
+    comment_records = load_json(root / 'working' / 'reviewer_comments.json', [])
+    agent_comment_id = st.selectbox(
+        'Comment for Agent gap analysis',
+        [item['comment_id'] for item in comment_records],
+        key='agent_gap_comment',
+    ) if comment_records else None
+    if agent_comment_id:
+        render_agent_task_launcher(
+            root, actor, task_type=AgentTaskType.GAP_ANALYSIS,
+            label='Run Gap Analysis with Codex',
+            purpose='Assess manuscript coverage for one exact reviewer comment.',
+            key=f'agent_gap_{agent_comment_id}', comment_ids=[agent_comment_id],
+            context_policy=ContextPolicy.SECTION_CONTEXT,
+        )
     with st.container(horizontal=True, key='srs_action_row'):
         if st.button('Prepare analysis package', icon=':material/package_2:', disabled=not allowed['prepare_gap_analysis']):
             try: orchestrator.prepare_gap_analysis(root, actor=actor); st.success('Blank semantic package prepared.'); st.rerun()

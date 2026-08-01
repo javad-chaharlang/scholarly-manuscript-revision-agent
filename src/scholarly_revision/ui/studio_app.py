@@ -24,12 +24,17 @@ from scholarly_revision.ui.state import initialize_session, redact_exception
 from scholarly_revision.ui.theme import apply_theme
 
 
-PAGES = {spec.title: spec.module for spec in PAGE_SPECS}
+# Compatibility map retained for integrations that predate the System-level
+# Agent Tasks workspace. Live navigation is built from PAGE_SPECS below.
+PAGES = {
+    spec.title: spec.module for spec in PAGE_SPECS if spec.key != 'agent_tasks'
+}
 V9_PAGE_KEYS = {
     'dashboard', 'new_project', 'input_files', 'reviewer_comments',
     'gap_analysis', 'revision_plan', 'text_approval', 'manuscript_versions',
     'reference_audit', 'scientific_qa', 'response_letter', 'visual_qa',
     'final_release', 'settings',
+    'agent_tasks',
 }
 
 

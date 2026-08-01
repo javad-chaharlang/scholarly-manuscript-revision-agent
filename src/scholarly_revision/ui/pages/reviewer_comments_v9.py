@@ -1,6 +1,9 @@
 from __future__ import annotations
 from pathlib import Path
 import streamlit as st
+from scholarly_revision.models.agent_context import ContextPolicy
+from scholarly_revision.models.agent_task import AgentTaskType
+from scholarly_revision.ui.agent_controls import render_agent_task_launcher
 from scholarly_revision.services.gap_analysis_service import read_json
 from scholarly_revision.ui.components.studio import empty_state, page_header, state_banner
 from scholarly_revision.ui.state import redact_exception
@@ -60,6 +63,15 @@ def render(orchestrator, project_root, actor) -> None:
                   ('Related comments', item.get('shared_with'))]
         for label, value in fields:
             with st.expander(label): st.write(value or 'Not recorded')
+    selected_comment_id = item['comment_id']
+    render_agent_task_launcher(
+        project_root, actor, task_type=AgentTaskType.COMMENT_INTERPRETATION,
+        label='Run Comment Interpretation with Codex',
+        purpose='Interpret one exact reviewer comment without changing its identity.',
+        key=f'agent_interpret_{selected_comment_id}',
+        comment_ids=[selected_comment_id],
+        context_policy=ContextPolicy.MINIMAL_COMMENT_CONTEXT,
+    )
     allowed = orchestrator.available_actions(project_root)
     if st.button('Confirm intake review complete', icon=':material/check_circle:',
                  disabled=not allowed['complete_intake_review']):

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import shutil
 import unicodedata
@@ -11,7 +12,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 
-WORKSPACE_DIRECTORIES = ('input', 'working', 'outputs', 'rendered', 'audit', 'config')
+WORKSPACE_DIRECTORIES = (
+    'input', 'working', 'outputs', 'rendered', 'audit', 'config',
+    'agent_runs', 'backups',
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,6 +28,8 @@ class ProjectWorkspace:
     rendered: Path
     audit: Path
     config: Path
+    agent_runs: Path
+    backups: Path
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,6 +104,19 @@ def create_project_workspace(
     directories = {name: project_root / name for name in WORKSPACE_DIRECTORIES}
     for directory in directories.values():
         directory.mkdir()
+    (directories['config'] / 'agent_settings.json').write_text(
+        json.dumps({
+            'codex_executable': None,
+            'default_timeout_seconds': 300,
+            'context_warning_characters': 40000,
+            'global_concurrency': 1,
+            'pilot_mode': True,
+            'allow_semantic_tasks': True,
+            'one_active_task_per_project': True,
+            'abandoned_run_seconds': 60,
+        }, indent=2, sort_keys=True) + '\n',
+        encoding='utf-8',
+    )
     return ProjectWorkspace(root=project_root, slug=slug, **directories)
 
 

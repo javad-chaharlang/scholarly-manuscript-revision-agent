@@ -2,6 +2,9 @@ from __future__ import annotations
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import streamlit as st
+from scholarly_revision.models.agent_context import ContextPolicy
+from scholarly_revision.models.agent_task import AgentTaskType
+from scholarly_revision.ui.agent_controls import render_agent_task_launcher
 from scholarly_revision.ui.components.studio import download, empty_state, load_json, page_header, state_banner
 from scholarly_revision.ui.state import redact_exception, save_uploaded_file
 
@@ -25,6 +28,14 @@ def render(orchestrator, project_root, actor) -> None:
                     text=f"{sum(i.get('response_status') == 'VERIFIED' for i in visible)} of {len(visible)} verified")
         selected = st.selectbox('Comment', [i['comment_id'] for i in visible])
         item = next(i for i in visible if i['comment_id'] == selected)
+        render_agent_task_launcher(
+            root, actor, task_type=AgentTaskType.RESPONSE_LETTER_DRAFT,
+            label='Generate draft response with Codex',
+            purpose='Draft one response from verified project records and applied changes only.',
+            key=f'agent_response_{selected}', comment_ids=[selected],
+            action_ids=item.get('related_action_ids', []),
+            context_policy=ContextPolicy.RESPONSE_CONTEXT,
+        )
         c1, c2, c3, c4 = st.columns(4)
         c1.text_area('Reviewer comment', item.get('exact_comment', ''), disabled=True, height=220)
         c2.write(item.get('related_action_ids') or 'No related action')

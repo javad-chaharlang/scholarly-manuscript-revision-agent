@@ -1,6 +1,9 @@
 from __future__ import annotations
 from pathlib import Path
 import streamlit as st
+from scholarly_revision.models.agent_context import ContextPolicy
+from scholarly_revision.models.agent_task import AgentTaskType
+from scholarly_revision.ui.agent_controls import render_agent_task_launcher
 from scholarly_revision.models.enums import RevisionTextDecision
 from scholarly_revision.ui.components.studio import empty_state, load_json, page_header, state_banner
 from scholarly_revision.ui.state import redact_exception
@@ -14,6 +17,22 @@ def render(orchestrator, project_root, actor) -> None:
     draft_id = st.selectbox('Draft', [i['draft']['draft_id'] for i in entries], key='text_draft')
     entry = next(i for i in entries if i['draft']['draft_id'] == draft_id); draft = entry['draft']
     action = entry.get('approved_action', {})
+    draft_instruction = st.text_area(
+        'Task-level rewrite instruction', key=f'agent_draft_instruction_{draft_id}',
+        placeholder='Optional bounded drafting instruction for this exact target.',
+    )
+    render_agent_task_launcher(
+        root, actor, task_type=AgentTaskType.REVISION_TEXT_DRAFT,
+        label='Draft selected text with Codex',
+        purpose=(
+            'Draft proposed text for the approved action and exact target. '
+            + (draft_instruction.strip() or 'No additional author instruction.')
+        ),
+        key=f'agent_text_{draft_id}', comment_ids=draft.get('comment_ids', []),
+        action_ids=[draft['action_id']],
+        element_ids=draft.get('target_element_ids', []),
+        context_policy=ContextPolicy.SECTION_CONTEXT,
+    )
     c1, c2, c3 = st.columns(3)
     with c1:
         with st.container(border=True, height='stretch'):

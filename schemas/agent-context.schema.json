@@ -1,0 +1,188 @@
+{
+  "$defs": {
+    "ContextManuscriptSection": {
+      "additionalProperties": false,
+      "properties": {
+        "excerpts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Excerpts",
+          "type": "array"
+        },
+        "paragraph_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Paragraph Ids",
+          "type": "array"
+        },
+        "section": {
+          "title": "Section",
+          "type": "string"
+        }
+      },
+      "required": [
+        "section"
+      ],
+      "title": "ContextManuscriptSection",
+      "type": "object"
+    },
+    "ContextPolicy": {
+      "enum": [
+        "MINIMAL_COMMENT_CONTEXT",
+        "SECTION_CONTEXT",
+        "EXTENDED_SECTION_CONTEXT",
+        "RESULTS_CONTEXT",
+        "REFERENCE_CONTEXT",
+        "RESPONSE_CONTEXT",
+        "CUSTOM_AUTHOR_APPROVED_CONTEXT"
+      ],
+      "title": "ContextPolicy",
+      "type": "string"
+    },
+    "ContextReviewerComment": {
+      "additionalProperties": false,
+      "properties": {
+        "comment_id": {
+          "title": "Comment Id",
+          "type": "string"
+        },
+        "exact_comment": {
+          "title": "Exact Comment",
+          "type": "string"
+        }
+      },
+      "required": [
+        "comment_id",
+        "exact_comment"
+      ],
+      "title": "ContextReviewerComment",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The complete package shown to the author before transmission.",
+  "properties": {
+    "context_id": {
+      "minLength": 1,
+      "title": "Context Id",
+      "type": "string"
+    },
+    "context_policy": {
+      "$ref": "#/$defs/ContextPolicy"
+    },
+    "custom_context_author_approved": {
+      "default": false,
+      "title": "Custom Context Author Approved",
+      "type": "boolean"
+    },
+    "evidence_records_included": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Evidence Records Included",
+      "type": "array"
+    },
+    "exclusions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Exclusions",
+      "type": "array"
+    },
+    "input_file_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Input File Hashes",
+      "type": "object"
+    },
+    "manuscript_sections_included": {
+      "items": {
+        "$ref": "#/$defs/ContextManuscriptSection"
+      },
+      "title": "Manuscript Sections Included",
+      "type": "array"
+    },
+    "paragraph_ids_included": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Paragraph Ids Included",
+      "type": "array"
+    },
+    "prepared_at": {
+      "format": "date-time",
+      "title": "Prepared At",
+      "type": "string"
+    },
+    "project_id": {
+      "minLength": 1,
+      "title": "Project Id",
+      "type": "string"
+    },
+    "redactions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Redactions",
+      "type": "array"
+    },
+    "references_included": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "References Included",
+      "type": "array"
+    },
+    "result_records_included": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Result Records Included",
+      "type": "array"
+    },
+    "reviewer_comments_included": {
+      "items": {
+        "$ref": "#/$defs/ContextReviewerComment"
+      },
+      "title": "Reviewer Comments Included",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "task_id": {
+      "minLength": 1,
+      "title": "Task Id",
+      "type": "string"
+    },
+    "total_character_count": {
+      "minimum": 0,
+      "title": "Total Character Count",
+      "type": "integer"
+    },
+    "transmitted_payload": {
+      "additionalProperties": true,
+      "title": "Transmitted Payload",
+      "type": "object"
+    }
+  },
+  "required": [
+    "context_id",
+    "task_id",
+    "project_id",
+    "context_policy",
+    "prepared_at",
+    "total_character_count",
+    "transmitted_payload"
+  ],
+  "title": "AgentContextManifest",
+  "type": "object"
+}

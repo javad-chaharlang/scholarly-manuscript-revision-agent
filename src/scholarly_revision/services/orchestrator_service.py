@@ -27,6 +27,9 @@ from scholarly_revision.services.manual_visual_qa_service import (
 from scholarly_revision.services.project_registry import ProjectRegistry
 from scholarly_revision.services.project_state_service import ProjectStateService
 from scholarly_revision.services.project_workspace import copy_input_file, sha256_file
+from scholarly_revision.services.real_project_checklist_service import (
+    RealProjectChecklistService,
+)
 from scholarly_revision.services.qa_report_service import apply_qa_decisions, verify_qa_resolutions
 from scholarly_revision.services.response_letter_service import load_response_sources
 from scholarly_revision.services.revision_drafting_service import load_project_revision_sources
@@ -743,3 +746,6 @@ class OrchestratorService:
             item.model_dump(mode='json')
             for item in ProjectStateService(project_root).timeline()
         ]
+
+    def project_checklist(self, project_root: str | Path) -> dict[str, Any]:
+        return RealProjectChecklistService(project_root).evaluate()

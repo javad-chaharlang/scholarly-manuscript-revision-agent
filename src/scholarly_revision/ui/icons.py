@@ -16,7 +16,7 @@ ICONS = {
     'visual_qa': ':material/visibility:',
     'final_release': ':material/rocket_launch:',
     'audit_timeline': ':material/timeline:',
+    'agent_tasks': ':material/smart_toy:',
     'settings': ':material/settings:',
     'home': ':material/home:',
 }
-

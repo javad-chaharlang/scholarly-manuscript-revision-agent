@@ -15,6 +15,7 @@ An agentic research workflow for revising scholarly manuscripts and preparing co
 - Revision workbook generation
 - Response-to-reviewers generation
 - Final manuscript quality assurance
+- Approval-gated Codex CLI semantic tasks with persistent audit records
 
 ## Highlight policy
 
@@ -37,10 +38,11 @@ Unpublished manuscripts, reviewer files, experimental results, API keys, author 
 
 ## Scholarly Revision Studio
 
-Phase 9 provides a production-oriented local Streamlit workspace with grouped
+Phase 10 provides a production-oriented local Streamlit workspace with grouped
 top navigation, a persisted project portfolio, a five-step intake wizard,
 state-aware workflow dashboards, explicit approval gates, bilingual
-English/Persian infrastructure, visual QA, and immutable release controls.
+English/Persian infrastructure, visual QA, immutable release controls, and
+non-blocking Codex CLI tasks backed by a project-local file registry.
 
 Start it with:
 
@@ -48,9 +50,16 @@ Start it with:
     python scripts/run_app.py
 
 Use only a confidential workspace outside this Git repository. See
-`docs/user-interface-guide.md`, `docs/phase9-interface-overview.md`, and
-`docs/ui-quality-checklist.md`.
+`docs/user-interface-guide.md`, `docs/agent-integration-workflow.md`,
+`docs/privacy-and-transmission.md`, and `docs/real-project-pilot.md`.
+
+The semantic lane uses the currently authenticated `codex exec` session. It
+does not call the OpenAI API directly or require `OPENAI_API_KEY`. Project
+content is transmitted only after the author reviews the exact minimal context
+package and records approval. Run `python scripts/check_codex_health.py` for
+an offline local capability check. The optional `--live` test uses anonymous
+synthetic text and is never part of the normal test suite.
 
 ## Development status
 
-Version 0.3.0 — deterministic workflow through the Phase 9 interface
+Version 0.4.0 — deterministic workflow plus governed Phase 10 Codex CLI tasks

@@ -1,0 +1,13 @@
+schema_version: 1
+codex_executable: null
+default_timeout_seconds: 300
+context_warning_characters: 40000
+global_concurrency: 1
+one_active_task_per_project: true
+pilot_mode: true
+allow_semantic_tasks: true
+abandoned_run_seconds: 60
+transmission_warning: >-
+  Project excerpts leave local storage only after explicit APPROVE_TRANSMISSION.
+  Review the exact context manifest before each semantic task.
+audit_directory: agent_runs

@@ -16,7 +16,7 @@ from scholarly_revision.ui.state import set_active_project
 try:
     APPLICATION_VERSION = version('scholarly-manuscript-revision-agent')
 except PackageNotFoundError:
-    APPLICATION_VERSION = '0.3.0'
+    APPLICATION_VERSION = '0.4.0'
 
 
 ACTION_ICONS = {
