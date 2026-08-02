@@ -45,6 +45,6 @@ def test_stale_approved_target_stops_without_output(tmp_path: Path) -> None:
     from scholarly_revision.services.gap_analysis_service import write_json
     write_json(root / 'working' / 'revision_drafts.json', payload)
     import pytest
-    with pytest.raises(ValueError, match='stale target hash'):
+    with pytest.raises(ValueError, match='changed after researcher approval'):
         apply_approved_revisions(root, MANUSCRIPT)
     assert not (root / 'outputs' / 'Revised_Manuscript_Highlighted.docx').exists()

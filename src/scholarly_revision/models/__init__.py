@@ -1,6 +1,12 @@
 '''Validated domain records used by the revision source of truth.'''
 
 from scholarly_revision.models.evidence import EvidenceRecord, ExperimentalResultRecord
+from scholarly_revision.models.comment_approval import (
+    CommentApprovalBundle,
+    CommentApprovalDecision,
+    CommentApprovalRecord,
+    ProposedCommentResponse,
+)
 from scholarly_revision.models.gap_analysis import (
     ActionProposal,
     ApprovalRecord,
@@ -51,6 +57,10 @@ __all__ = [
     'TransmissionDecision',
     'ActionProposal',
     'ApprovalRecord',
+    'CommentApprovalBundle',
+    'CommentApprovalDecision',
+    'CommentApprovalRecord',
+    'ProposedCommentResponse',
     'ChangeRecord',
     'DocumentVersionRecord',
     'RevisionDraft',

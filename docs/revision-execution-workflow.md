@@ -64,7 +64,16 @@ Supported decisions are APPROVE_TEXT, APPROVE_TEXT_WITH_MODIFICATION,
 REJECT_TEXT, REQUEST_REWRITE, NEED_MORE_EVIDENCE, and DEFER_TEXT. Approval is
 never inferred. Modified approval preserves author_modified_text exactly.
 
-## 4. Apply approved text
+## 4. Approve each reviewer-comment package
+
+Prepare one package for every reviewer/editor/general comment. Each contains
+the verbatim comment, editable proposed response, and every linked exact
+change. Approval is bound to source, comment, and complete-draft hashes;
+shared drafts require approval under every linked comment. Decisions are
+written to the audit log and `Revision_Master.xlsx`. Application is refused
+until the complete `comment_approval_packet.json` exists.
+
+## 5. Apply approved text
 
 ```powershell
 python scripts/apply_approved_revisions.py \
@@ -83,7 +92,7 @@ JSON/CSV change logs, a document version manifest, and an application report.
 Audit summaries omit manuscript text by default and retain hashes, character
 counts, and word counts.
 
-## 5. Verify outputs
+## 6. Verify outputs
 
 ```powershell
 python scripts/verify_revision_outputs.py \

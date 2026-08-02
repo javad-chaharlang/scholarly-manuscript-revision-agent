@@ -47,6 +47,7 @@ class AgentAssistedWorkflow:
             AgentTaskType.GAP_ANALYSIS: self._gap,
             AgentTaskType.REVISION_PLAN_DRAFT: self._plan,
             AgentTaskType.REVISION_TEXT_DRAFT: self._drafts,
+            AgentTaskType.PREAPPLICATION_RESPONSE_DRAFT: self._preapplication_responses,
             AgentTaskType.REFERENCE_NEED_ANALYSIS: self._notes,
             AgentTaskType.SEMANTIC_QA_REVIEW: self._semantic_qa,
             AgentTaskType.RESPONSE_LETTER_DRAFT: self._responses,
@@ -188,6 +189,40 @@ class AgentAssistedWorkflow:
         return not complete, len(output['entries']), (
             'Complete approved response draft sent through governed generation.'
             if complete else 'Approved response entries staged; every comment must be represented.'
+        )
+
+    def _preapplication_responses(self, task, output, actor):
+        path = self.root / 'working' / 'comment_approval_working.json'
+        if not path.is_file():
+            template = self.root / 'working' / 'comment_approval_template.json'
+            if not template.is_file():
+                raise FileNotFoundError(
+                    'prepare comment approval before importing response drafts'
+                )
+            write_json(path, read_json(template))
+        payload = read_json(path)
+        by_comment = {
+            item['comment_id']: item for item in payload.get('records', [])
+        }
+        for response in output['responses']:
+            record = by_comment.get(response['comment_id'])
+            if record is None:
+                raise ValueError(
+                    f"unknown comment approval record: {response['comment_id']}"
+                )
+            if record.get('decision'):
+                raise ValueError('cannot replace a researcher-decided response')
+            record['proposed_response'] = response['proposed_response']
+            record['agent_uncertainties'] = response.get('uncertainties', [])
+        write_json(path, payload)
+        self._event(
+            'AGENT_PREAPPLICATION_RESPONSE_IMPORTED',
+            actor,
+            task,
+            len(output['responses']),
+        )
+        return False, len(output['responses']), (
+            'Proposed responses staged for the mandatory researcher approval gate.'
         )
 
     def _semantic_qa(self, task, output, actor):

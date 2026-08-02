@@ -76,7 +76,7 @@ def _prepared_gap(project: Path):
 
 
 def test_task_types_statuses_and_generated_schemas() -> None:
-    assert len(AgentTaskType) == 8
+    assert len(AgentTaskType) == 9
     assert {'WAITING_FOR_TRANSMISSION_APPROVAL', 'AUTHOR_REVIEW', 'IMPORTED'} <= {
         item.value for item in AgentTaskStatus
     }

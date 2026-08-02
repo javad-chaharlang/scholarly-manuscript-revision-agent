@@ -12,6 +12,7 @@ from typing import Any
 from scholarly_revision.models.enums import (
     ApprovalDecision, ResultStatus, RevisionTextDecision,
 )
+from scholarly_revision.models.comment_approval import CommentApprovalDecision
 from scholarly_revision.models.project import InputFiles
 from scholarly_revision.models.project_state import ProjectState, ProjectStateRecord
 from scholarly_revision.models.reviewer import ReviewerComment, RevisionAction
@@ -20,6 +21,15 @@ from scholarly_revision.models.revision_draft import (
 )
 from scholarly_revision.services.approval_service import approval_gate_status, record_decision
 from scholarly_revision.services.config_loader import load_project_manifest, save_project_manifest
+from scholarly_revision.services.comment_approval_service import (
+    APPROVAL_PACKET,
+    APPROVAL_TEMPLATE,
+    APPROVAL_WORKING,
+    eligible_draft_ids,
+    invalidate_comment_approval,
+    prepare_comment_approval,
+    record_comment_approval_decision,
+)
 from scholarly_revision.services.gap_analysis_service import read_json, write_json
 from scholarly_revision.services.manual_visual_qa_service import (
     import_manual_visual_qa_decisions, prepare_manual_visual_qa_template,
@@ -39,7 +49,9 @@ from scholarly_revision.services.revision_text_approval_service import (
 from scholarly_revision.services.scientific_qa_service import load_qa_config
 from scholarly_revision.tools.docx_reader import read_docx
 from scholarly_revision.tools.workbook_builder import (
-    update_revision_execution_workbook, update_revision_workbook,
+    update_comment_approval_workbook,
+    update_revision_execution_workbook,
+    update_revision_workbook,
 )
 from scholarly_revision.workflows.finalization_workflow import (
     build_submission_package, generate_response_letter,
@@ -88,6 +100,8 @@ ACTION_STATES: dict[str, set[ProjectState]] = {
     'prepare_revision_drafts': {ProjectState.REVISION_DRAFTING},
     'import_revision_drafts': {ProjectState.REVISION_DRAFTING},
     'import_text_decisions': {ProjectState.TEXT_APPROVAL},
+    'prepare_comment_approval': {ProjectState.TEXT_APPROVAL},
+    'record_comment_approval': {ProjectState.TEXT_APPROVAL},
     'apply_revisions': {ProjectState.REVISION_APPLICATION},
     'run_scientific_qa': {ProjectState.SCIENTIFIC_QA},
     'import_qa_decisions': {ProjectState.SCIENTIFIC_QA, ProjectState.BLOCKED},
@@ -266,6 +280,21 @@ class OrchestratorService:
         actions['prepare_revision_drafts'] &= not (
             root / 'working' / 'revision_draft_template.json'
         ).exists()
+        draft_path = root / 'working' / 'revision_drafts.json'
+        draft_payload = read_json(draft_path) if draft_path.is_file() else {'drafts': []}
+        all_text_decided = bool(draft_payload.get('drafts')) and all(
+            item.get('draft', {}).get('author_decision') is not None
+            for item in draft_payload.get('drafts', [])
+        )
+        actions['prepare_comment_approval'] &= (
+            all_text_decided
+            and not (root / 'working' / APPROVAL_TEMPLATE).exists()
+        )
+        actions['record_comment_approval'] &= (
+            all_text_decided
+            and (root / 'working' / APPROVAL_WORKING).exists()
+            and not (root / 'working' / APPROVAL_PACKET).exists()
+        )
         actions['prepare_response'] &= not (
             root / 'working' / 'response_drafting_package.json'
         ).exists()
@@ -398,20 +427,13 @@ class OrchestratorService:
     ) -> Any:
         root, states = self._require(project_root, 'import_text_decisions')
         result = import_completed_text_decisions(root, decisions_file)
+        invalidate_comment_approval(root)
         payload = read_json(result.revision_drafts_path)
         drafts = [RevisionDraft.model_validate(item['draft']) for item in payload['drafts']]
         states.record_event(
             event_type='TEXT_DECISIONS_RECORDED', action='import_text_decisions',
             actor=actor, details={'decision_count': result.decision_count},
         )
-        approved = [item for item in drafts if item.approval_state.value == 'APPROVED']
-        pending = [item for item in drafts if item.approval_state.value == 'PENDING']
-        if approved and not pending:
-            self._sync(states.transition(
-                ProjectState.REVISION_APPLICATION,
-                action='complete_text_approval', actor=actor,
-                details={'approved_draft_count': len(approved)},
-            ))
         return result
 
     def record_text_decision(
@@ -449,6 +471,7 @@ class OrchestratorService:
         )
         updated = record_revision_text_decision(payload, record)
         write_json(path, updated)
+        invalidate_comment_approval(root)
         audit_path = root / 'audit' / 'revision_text_decisions.json'
         audit = read_json(audit_path) if audit_path.is_file() else {
             'schema_version': 1, 'decisions': [],
@@ -473,18 +496,93 @@ class OrchestratorService:
                 'decision_maker': decision_maker,
             },
         )
-        pending = [item for item in current_drafts if item.author_decision is None]
-        approved = [
-            item for item in current_drafts
-            if item.approval_state.value == 'APPROVED'
-        ]
-        if not pending and approved:
-            return self._sync(states.transition(
-                ProjectState.REVISION_APPLICATION,
-                action='complete_text_approval', actor=actor,
-                details={'approved_draft_count': len(approved)},
-            ))
         return states.load()
+
+    def prepare_comment_approval(
+        self, project_root: str | Path, *, actor: str,
+    ) -> Path:
+        root, states = self._require(project_root, 'prepare_comment_approval')
+        payload = read_json(root / 'working' / 'revision_drafts.json')
+        drafts = [
+            RevisionDraft.model_validate(item['draft'])
+            for item in payload.get('drafts', [])
+        ]
+        if not drafts or any(item.author_decision is None for item in drafts):
+            raise ValueError(
+                'every revision draft requires an explicit text decision first'
+            )
+        path = prepare_comment_approval(root)
+        states.record_event(
+            event_type='COMMENT_APPROVAL_PREPARED',
+            action='prepare_comment_approval', actor=actor,
+            details={'comment_count': len(read_json(path).get('records', []))},
+        )
+        return path
+
+    def record_comment_approval(
+        self, project_root: str | Path, *, comment_id: str,
+        proposed_response: str, decision: CommentApprovalDecision | str,
+        decision_maker: str, actor: str,
+        approved_draft_ids: list[str] | None = None,
+        author_modified_response: str | None = None,
+        author_note: str | None = None,
+        evidence_request: str | None = None,
+        rewrite_instruction: str | None = None,
+    ) -> ProjectStateRecord:
+        root, states = self._require(project_root, 'record_comment_approval')
+        approval_payload, bundle = record_comment_approval_decision(
+            root, comment_id=comment_id,
+            proposed_response=proposed_response, decision=decision,
+            decision_maker=decision_maker,
+            approved_draft_ids=approved_draft_ids,
+            author_modified_response=author_modified_response,
+            author_note=author_note, evidence_request=evidence_request,
+            rewrite_instruction=rewrite_instruction,
+        )
+        comments = [
+            ReviewerComment.model_validate(item)
+            for item in read_json(root / 'working' / 'reviewer_comments.json')
+        ]
+        update_comment_approval_workbook(
+            root / 'outputs' / 'Revision_Master.xlsx',
+            approval_payload,
+            comments,
+        )
+        states.record_event(
+            event_type='COMMENT_APPROVAL_RECORDED',
+            action='record_comment_approval', actor=actor,
+            details={
+                'comment_id': comment_id,
+                'decision': CommentApprovalDecision(decision).value,
+                'decision_maker': decision_maker,
+                'approved_draft_count': len(approved_draft_ids or []),
+            },
+        )
+        if bundle is None:
+            return states.load()
+        draft_payload = read_json(root / 'working' / 'revision_drafts.json')
+        drafts = [
+            RevisionDraft.model_validate(item['draft'])
+            for item in draft_payload.get('drafts', [])
+        ]
+        eligible = eligible_draft_ids(bundle, drafts)
+        if not eligible:
+            (root / 'working' / APPROVAL_PACKET).unlink(missing_ok=True)
+            (root / 'audit' / 'comment_approval_completion.json').unlink(
+                missing_ok=True
+            )
+            raise ValueError(
+                'comment review is complete but no exact draft was approved by every '
+                'linked comment; revise the decisions before manuscript application'
+            )
+        return self._sync(states.transition(
+            ProjectState.REVISION_APPLICATION,
+            action='complete_comment_approval', actor=actor,
+            details={
+                'approved_comment_count': len(bundle.approved_comment_ids),
+                'eligible_draft_count': len(eligible),
+            },
+        ))
 
     def apply_revisions(self, project_root: str | Path, *, actor: str) -> Any:
         root, states = self._require(project_root, 'apply_revisions')
@@ -695,6 +793,12 @@ class OrchestratorService:
             item for section in response.get('sections', [])
             for item in section.get('entries', [])
         ]
+        comment_approval_path = root / 'working' / APPROVAL_WORKING
+        comment_approval = (
+            read_json(comment_approval_path)
+            if comment_approval_path.is_file() else {'records': []}
+        )
+        comment_approval_records = comment_approval.get('records', [])
         release_path = root / 'audit' / 'final_release_report.json'
         release = read_json(release_path) if release_path.is_file() else {}
         return {
@@ -707,6 +811,10 @@ class OrchestratorService:
             'draft_texts_awaiting_approval': sum(
                 item.approval_state.value == 'PENDING' for item in drafts
             ),
+            'comment_packages_completed': sum(
+                bool(item.get('decision')) for item in comment_approval_records
+            ),
+            'comment_packages_total': len(comment_approval_records),
             'qa_blockers': int(qa.get('blocker_count', 0)),
             'verified_responses': sum(
                 item.get('response_status') == 'VERIFIED' for item in response_entries

@@ -21,7 +21,10 @@ NEXT_ACTION = {
     ProjectState.GAP_ANALYSIS_PENDING: 'Prepare and import a source-grounded gap analysis.',
     ProjectState.PLAN_APPROVAL: 'Record an explicit decision for every revision action.',
     ProjectState.REVISION_DRAFTING: 'Prepare and import exact revision text drafts.',
-    ProjectState.TEXT_APPROVAL: 'Record an explicit decision for every draft text.',
+    ProjectState.TEXT_APPROVAL: (
+        'Approve every exact draft, then approve each reviewer-comment package '
+        '(response plus linked changes).'
+    ),
     ProjectState.REVISION_APPLICATION: 'Apply and verify approved text on versioned copies.',
     ProjectState.SCIENTIFIC_QA: 'Run deterministic scientific QA and resolve blockers.',
     ProjectState.RESPONSE_PREPARATION: 'Prepare, generate, and verify the response letter.',

@@ -151,6 +151,13 @@ class RevisionTextDecision(StringEnum):
 class HighlightColor(StringEnum):
     YELLOW = 'YELLOW'
     BRIGHT_GREEN = 'BRIGHT_GREEN'
+    LIGHT_BLUE = 'LIGHT_BLUE'
+    PINK = 'PINK'
+    TEAL = 'TEAL'
+    DARK_YELLOW = 'DARK_YELLOW'
+    GRAY_25 = 'GRAY_25'
+    DARK_BLUE = 'DARK_BLUE'
+    RED = 'RED'
     VIOLET = 'VIOLET'
 
 

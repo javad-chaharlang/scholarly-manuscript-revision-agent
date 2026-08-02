@@ -46,6 +46,8 @@ These instructions apply to the entire repository.
 
 Obtain explicit human approval before:
 
+- applying manuscript changes, after atomic review of each exact comment,
+  editable response, and every linked exact draft;
 - accepting or changing novelty claims;
 - accepting experimental conclusions;
 - accepting statistical interpretations;
@@ -54,6 +56,16 @@ Obtain explicit human approval before:
 
 Treat an approval as scoped to the recorded proposal. Request approval again
 when the scientific meaning, evidence, or planned response materially changes.
+Bind pre-application approval to the source, exact-comment, and complete-draft
+hashes; any changed approved draft invalidates the authorization.
+
+## HybridQDL golden reference
+
+Use HybridQDL as the process and output-quality benchmark, never as reusable
+scientific prose. For any reviewer/comment count, produce a highlighted and an
+equivalent clean manuscript, a professional response letter, a step-by-step
+Excel registry, and machine-readable audit records. Preserve researcher
+editing and approval before deterministic manuscript mutation.
 
 ## Confidentiality and source control
 

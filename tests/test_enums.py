@@ -24,6 +24,13 @@ def test_highlight_values_are_exact() -> None:
         'YELLOW',
         'BRIGHT_GREEN',
         'VIOLET',
+        'LIGHT_BLUE',
+        'PINK',
+        'TEAL',
+        'DARK_YELLOW',
+        'GRAY_25',
+        'DARK_BLUE',
+        'RED',
     }
 
 

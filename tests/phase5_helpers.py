@@ -11,6 +11,10 @@ from scholarly_revision.models.enums import (
 )
 from scholarly_revision.models.reviewer import ReviewerComment, RevisionAction
 from scholarly_revision.services.gap_analysis_service import read_json, write_json
+from scholarly_revision.services.comment_approval_service import (
+    prepare_comment_approval,
+    record_comment_approval_decision,
+)
 from scholarly_revision.tools.workbook_builder import update_revision_workbook
 from scholarly_revision.workflows.gap_analysis_workflow import prepare_gap_analysis
 from scholarly_revision.workflows.intake_workflow import IntakeRequest, run_intake_workflow
@@ -163,4 +167,23 @@ def setup_approved_project(tmp_path: Path) -> Path:
     root = make_phase5_project(tmp_path)
     complete_and_import_drafts(root)
     decide_all_drafts(root)
+    prepare_comment_approval(root)
+    approval = read_json(root / 'working' / 'comment_approval_working.json')
+    for record in approval['records']:
+        approved_ids = [
+            item['draft_id'] for item in record.get('proposed_changes', [])
+            if item.get('text_approval_state') == 'APPROVED'
+            and not item.get('manual_handling_required')
+        ]
+        record_comment_approval_decision(
+            root,
+            comment_id=record['comment_id'],
+            proposed_response=(
+                f"Thank you for the {record['comment_id']} comment. "
+                'The approved revision scope has been reviewed by the author.'
+            ),
+            decision='APPROVE_PACKAGE',
+            decision_maker='anonymous-author',
+            approved_draft_ids=approved_ids,
+        )
     return root

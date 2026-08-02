@@ -229,31 +229,42 @@ def test_all_pages_load_for_synthetic_project(tmp_path: Path) -> None:
 
 def test_wizard_rejects_zero_byte_and_builds_resumable_project(tmp_path: Path, monkeypatch) -> None:
     from scholarly_revision.ui.pages import new_project_v9 as wizard
-    class Upload:
-        def __init__(self, name: str, payload: bytes):
-            self.name, self.payload = name, payload
-        def getvalue(self):
-            return self.payload
-    with pytest.raises(ValueError, match='empty'):
-        wizard._materialize(Upload('empty.docx', b''), tmp_path / 'stage', 'reviewer', True)
+    from scholarly_revision.services.wizard_upload_service import (
+        REVIEWER_ROLE, MANUSCRIPT_ROLE, WizardUploadError,
+        create_draft_directory, persist_upload,
+    )
+    draft_id, draft = create_draft_directory(draft_root=tmp_path / 'drafts')
+    with pytest.raises(WizardUploadError, match='empty'):
+        persist_upload(
+            payload=b'', original_name='empty.docx',
+            mime_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            role=REVIEWER_ROLE, draft_directory=draft)
     workspace = tmp_path / 'wizard-workspace'
+    reviewer_record = persist_upload(
+        payload=(FIXTURES / 'synthetic_reviewer_comments.docx').read_bytes(),
+        original_name='reviewers.docx', mime_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        role=REVIEWER_ROLE, draft_directory=draft)
+    manuscript_record = persist_upload(
+        payload=(FIXTURES / 'synthetic_manuscript.docx').read_bytes(),
+        original_name='manuscript.docx', mime_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        role=MANUSCRIPT_ROLE, draft_directory=draft)
     data = {
+        'new_project_draft_id': draft_id,
+        'new_project_draft_directory': str(draft),
         'wiz_project_name': 'Wizard synthetic', 'wiz_manuscript_id': 'WIZ-SYN',
         'wiz_title': 'Anonymous wizard manuscript', 'wiz_journal': 'Synthetic Journal',
         'wiz_round': 1, 'wiz_reviewer_count': 2, 'wiz_manuscript_language': 'English',
         'wiz_response_language': 'English', 'wiz_citation_style': 'numeric',
         'wiz_result_status': 'DRAFT',
-        'wiz_reviewer': Upload('reviewers.docx',
-            (FIXTURES / 'synthetic_reviewer_comments.docx').read_bytes()),
-        'wiz_manuscript': Upload('manuscript.docx',
-            (FIXTURES / 'synthetic_manuscript.docx').read_bytes()),
+        'new_project_reviewer_upload_record': reviewer_record,
+        'new_project_manuscript_upload_record': manuscript_record,
     }
     monkeypatch.setattr(wizard.st, 'session_state', data)
-    stage = tmp_path / 'wizard-stage'; stage.mkdir()
-    request = wizard._request(workspace, stage)
+    request = wizard._request(workspace)
     service = OrchestratorService(workspace)
     state = service.create_project(request, actor='Synthetic Author')
     assert OrchestratorService(workspace).resume(state.project_id).state is state.state
+    wizard._verify_project_input_hashes(service.registry.get(state.project_id).project_root)
 
 
 def test_project_archive_is_reversible_and_never_deletes_files(tmp_path: Path) -> None:

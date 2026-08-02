@@ -45,6 +45,18 @@ class HighlightPolicy(BaseModel):
 
     reviewer_1: HighlightColor = HighlightColor.YELLOW
     reviewer_2: HighlightColor = HighlightColor.BRIGHT_GREEN
+    reviewer_3: HighlightColor = HighlightColor.LIGHT_BLUE
+    reviewer_palette: list[HighlightColor] = Field(default_factory=lambda: [
+        HighlightColor.YELLOW,
+        HighlightColor.BRIGHT_GREEN,
+        HighlightColor.LIGHT_BLUE,
+        HighlightColor.PINK,
+        HighlightColor.TEAL,
+        HighlightColor.DARK_YELLOW,
+        HighlightColor.GRAY_25,
+        HighlightColor.DARK_BLUE,
+        HighlightColor.RED,
+    ])
     shared_and_general: HighlightColor = HighlightColor.VIOLET
 
     @model_validator(mode='after')
@@ -52,6 +64,7 @@ class HighlightPolicy(BaseModel):
         required = (
             (self.reviewer_1, HighlightColor.YELLOW, 'reviewer_1'),
             (self.reviewer_2, HighlightColor.BRIGHT_GREEN, 'reviewer_2'),
+            (self.reviewer_3, HighlightColor.LIGHT_BLUE, 'reviewer_3'),
             (
                 self.shared_and_general,
                 HighlightColor.VIOLET,
@@ -61,6 +74,15 @@ class HighlightPolicy(BaseModel):
         for actual, expected, field_name in required:
             if actual is not expected:
                 raise ValueError(f'{field_name} must be {expected.value}')
+        if self.reviewer_palette[:3] != [
+            HighlightColor.YELLOW,
+            HighlightColor.BRIGHT_GREEN,
+            HighlightColor.LIGHT_BLUE,
+        ] or len(set(self.reviewer_palette)) != len(self.reviewer_palette):
+            raise ValueError(
+                'reviewer_palette must start with the required reviewer colors '
+                'and cannot contain duplicates'
+            )
         return self
 
 
@@ -68,6 +90,7 @@ class ApprovalGates(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
     revision_plan: bool = True
+    comment_response_packages: bool = True
     novelty_claims: bool = True
     experimental_conclusions: bool = True
     statistical_interpretations: bool = True

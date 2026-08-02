@@ -17,6 +17,12 @@ from scholarly_revision.services.change_log_service import (
     validate_change_log_completeness,
     write_change_logs,
 )
+from scholarly_revision.services.comment_approval_service import (
+    APPROVAL_PACKET,
+    changed_approved_draft_ids,
+    eligible_draft_ids,
+    validate_comment_approval_bundle,
+)
 from scholarly_revision.services.document_version_service import (
     allocate_document_versions,
     finalize_document_versions,
@@ -112,15 +118,36 @@ def apply_approved_revision_texts(
     if source_before != expected_hash:
         raise ValueError('source manuscript SHA-256 does not match the drafting package')
 
+    comment_approval_path = root / 'working' / APPROVAL_PACKET
+    if not comment_approval_path.is_file():
+        raise PermissionError(
+            'pre-application comment approval is required before manuscript mutation'
+        )
+    comment_bundle = validate_comment_approval_bundle(
+        read_json(comment_approval_path)
+    )
+    changed_after_approval = changed_approved_draft_ids(comment_bundle, drafts)
+    if changed_after_approval:
+        raise ValueError(
+            'approved draft changed after researcher approval: '
+            + ', '.join(sorted(changed_after_approval))
+        )
+    comment_eligible_ids = eligible_draft_ids(comment_bundle, drafts)
+    if comment_bundle.source_document_hash != expected_hash:
+        raise ValueError('comment approval packet targets a different source document')
+
     approved = [
         draft for draft in drafts
         if draft.draft_status.value == 'APPROVED'
         and draft.approval_state.value == 'APPROVED'
         and not draft.manual_handling_required
+        and draft.draft_id in comment_eligible_ids
     ]
     blocked = len(drafts) - len(approved)
     if not approved:
-        raise ValueError('no explicitly exact-text-approved drafts are eligible for application')
+        raise ValueError(
+            'no drafts have both exact-text and all linked comment-package approvals'
+        )
     if len({draft.source_document_hash for draft in approved}) != 1:
         raise ValueError('approved drafts do not share one source document hash')
 
@@ -220,6 +247,9 @@ def apply_approved_revision_texts(
         },
         'text_equivalent': True,
         'approval_inferred': False,
+        'preapplication_comment_approval_enforced': True,
+        'comment_approval_packet': APPROVAL_PACKET,
+        'approved_comment_count': len(comment_bundle.approved_comment_ids),
         'response_letter_generated': False,
         'final_release_approved': False,
     }

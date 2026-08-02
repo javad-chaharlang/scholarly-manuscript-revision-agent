@@ -34,6 +34,13 @@
       "enum": [
         "YELLOW",
         "BRIGHT_GREEN",
+        "LIGHT_BLUE",
+        "PINK",
+        "TEAL",
+        "DARK_YELLOW",
+        "GRAY_25",
+        "DARK_BLUE",
+        "RED",
         "VIOLET"
       ],
       "title": "HighlightColor",

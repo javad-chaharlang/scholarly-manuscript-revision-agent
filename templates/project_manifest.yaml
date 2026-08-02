@@ -12,9 +12,21 @@ result_status: DRAFT
 highlight_policy:
   reviewer_1: YELLOW
   reviewer_2: BRIGHT_GREEN
+  reviewer_3: LIGHT_BLUE
+  reviewer_palette:
+    - YELLOW
+    - BRIGHT_GREEN
+    - LIGHT_BLUE
+    - PINK
+    - TEAL
+    - DARK_YELLOW
+    - GRAY_25
+    - DARK_BLUE
+    - RED
   shared_and_general: VIOLET
 approval_gates:
   revision_plan: true
+  comment_response_packages: true
   novelty_claims: true
   experimental_conclusions: true
   statistical_interpretations: true

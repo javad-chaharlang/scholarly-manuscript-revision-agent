@@ -76,6 +76,7 @@ desktop.ini
 # ============================================================
 docker-data/
 .local/
+.scholarly-revision-wizard/
 
 # Python packaging metadata
 *.egg-info/

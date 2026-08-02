@@ -21,6 +21,8 @@ decision, change, verification result, and response.
 - Read
   [response-letter-style.md](references/response-letter-style.md) before
   drafting or checking a response letter.
+- Read [golden-reference-case.md](references/golden-reference-case.md) when
+  evaluating whether deliverables match the HybridQDL reference workflow.
 
 ## Required inputs
 
@@ -52,6 +54,11 @@ Produce, when requested and supported by verified inputs:
 4. A response-to-reviewers letter.
 5. A final quality-assurance report.
 6. A machine-readable audit log.
+
+Treat the HybridQDL deliverable set as the golden acceptance pattern: one
+highlighted revised manuscript, one clean manuscript, one professional
+response letter, and one step-by-step revision registry. Match its workflow
+and traceability, but never copy its scientific wording into another project.
 
 Keep each output marked as draft until its release checks and required
 approvals pass.
@@ -115,13 +122,14 @@ criteria.
 3. Gap analysis.
 4. Revision planning.
 5. Human approval.
-6. Section-by-section revision.
-7. Reference lock.
-8. Experimental integrity validation.
-9. Structural and visual QA.
-10. Response-letter generation.
-11. Cross-document consistency.
-12. Final release.
+6. Exact-text approval, then atomic approval of every reviewer-comment package
+   (exact comment + response + every linked change).
+7. Section-by-section revision.
+8. Reference lock.
+9. Experimental integrity validation.
+10. Structural and visual QA.
+11. Response-letter generation from preapproved responses.
+12. Cross-document consistency and final release.
 
 Return to an earlier phase whenever new evidence or an approved change
 invalidates downstream work. Do not state that a change is complete until it
@@ -152,11 +160,15 @@ response-letter entry.
 Pause and obtain explicit human approval:
 
 1. After the revision plan and before substantive manuscript edits.
-2. Before accepting or changing a novelty claim.
-3. Before accepting an experimental conclusion.
-4. Before accepting a statistical interpretation.
-5. Before rejecting, declining, or partially addressing a reviewer request.
-6. Before final release.
+2. After exact-text decisions and before any manuscript mutation: obtain one
+   explicit atomic decision per comment covering its verbatim text, proposed
+   response, and every linked exact draft. Bind approval to hashes of the
+   source manuscript, comment text, and complete draft records.
+3. Before accepting or changing a novelty claim.
+4. Before accepting an experimental conclusion.
+5. Before accepting a statistical interpretation.
+6. Before rejecting, declining, or partially addressing a reviewer request.
+7. Before final release.
 
 Treat approval as invalidated if the underlying evidence or scientific meaning
 materially changes.

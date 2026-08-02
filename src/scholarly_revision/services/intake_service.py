@@ -103,15 +103,15 @@ def create_revision_project(
         workspace_root, project_name, force=force
     )
     inventory: list[InputFileRecord] = [
-        copy_input_file(reviewer_source, workspace, 'reviewer_comments')
+        copy_input_file(reviewer_source, workspace, 'reviewer_file')
     ]
     if manuscript_source is not None:
-        inventory.append(copy_input_file(manuscript_source, workspace, 'manuscript'))
+        inventory.append(copy_input_file(manuscript_source, workspace, 'manuscript_file'))
 
     created_at = datetime.now(UTC)
-    copied_reviewer = next(item for item in inventory if item.role == 'reviewer_comments')
+    copied_reviewer = next(item for item in inventory if item.role == 'reviewer_file')
     copied_manuscript = next(
-        (item for item in inventory if item.role == 'manuscript'), None
+        (item for item in inventory if item.role == 'manuscript_file'), None
     )
     manifest = ProjectManifest(
         project_name=project_name.strip(),

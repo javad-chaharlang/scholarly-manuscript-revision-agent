@@ -59,7 +59,20 @@ Record the approver, decision, scope, and date or revision context. Exit only
 with the approvals required for the next actions; keep unapproved items at
 `awaiting-approval` or `blocked`.
 
-## 6. Section-by-section revision
+## 6. Exact-text and comment-package approval
+
+Record one explicit researcher decision for every exact manuscript draft.
+Then create one package per exact reviewer/editor/general comment containing
+the verbatim comment, proposed response, and all linked proposed changes (old
+text, approved new text, target, operation, and color).
+
+The researcher may edit the response and select which text-approved drafts are
+authorized. Record the decision maker, timestamp, rationale, and hashes of the
+source, comment, and complete draft. Shared drafts require approval under
+every linked comment. Do not mutate the manuscript until every comment has an
+explicit decision and at least one exact draft is eligible.
+
+## 7. Section-by-section revision
 
 Revise the manuscript in a controlled section order using only approved plans
 and verified evidence. Preserve scientific meaning unless a scientific change
@@ -70,7 +83,7 @@ Mark a record `applied` only when the change exists in the manuscript. Mark it
 `verified` only after checking the actual manuscript text, context, formatting,
 location, and evidence. Reconcile dependencies before leaving each section.
 
-## 7. Reference lock
+## 8. Reference lock
 
 Resolve all citations against verified sources. Confirm bibliographic
 identity, relevance, claim support, in-text citation placement, reference-list
@@ -80,7 +93,7 @@ Lock the approved reference set so later phases cannot silently alter it.
 Exit only when every cited work is verified and every reference-list entry is
 accounted for. Never substitute a plausible reference for an unverified one.
 
-## 8. Experimental integrity validation
+## 9. Experimental integrity validation
 
 Compare all affected values, units, sample sizes, methods, uncertainty
 statements, statistical results, tables, figures, and conclusions with
@@ -92,7 +105,7 @@ Exit only when every affected result and claim is verified or explicitly
 blocked. Route changed conclusions and statistical interpretations through
 their human approval gates.
 
-## 9. Structural and visual QA
+## 10. Structural and visual QA
 
 Check section order, headings, pagination, numbering, captions, references,
 footnotes, figures, tables, equations, hyperlinks, and cross-references. Apply
@@ -103,17 +116,16 @@ and misplaced content.
 Exit only after recording both structural checks and page-level visual
 inspection results.
 
-## 10. Response-letter generation
+## 11. Response-letter generation
 
-Generate one traceable response entry per reviewer comment from the verified
-source-of-truth record. Preserve exact reviewer-comment text, describe only
-verified manuscript changes, use verified locations and highlights, and
-explain approved rejections or limitations respectfully and with evidence.
+Generate each entry from the approved pre-application response and verified
+source-of-truth record. Preserve researcher-approved response text exactly and
+add only deterministic verified locations and change identifiers.
 
 Keep the response letter in draft status until it has been reconciled with the
 rendered manuscript.
 
-## 11. Cross-document consistency
+## 12. Cross-document consistency and final release
 
 Compare the manuscript, revision workbook or database, and response letter
 field by field. Verify comment identifiers, status, change descriptions,
@@ -123,8 +135,6 @@ change.
 
 Exit only when all discrepancies are corrected and the consistency check is
 recorded as passed.
-
-## 12. Final release
 
 Run all final-release checks, generate the highlighted manuscript, clean
 manuscript, revision workbook, response letter, QA report, and audit log, and

@@ -1,0 +1,5 @@
+Draft a concise, professional response for each exact reviewer comment in scope.
+Use only the approved context. Describe manuscript changes as proposed, not completed.
+Preserve each exact comment, stable comment ID, and linked draft IDs. State limitations
+or missing evidence honestly. The researcher will review the response together with
+all linked manuscript changes before any document mutation.

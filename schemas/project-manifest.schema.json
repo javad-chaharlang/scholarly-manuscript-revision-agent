@@ -3,6 +3,11 @@
     "ApprovalGates": {
       "additionalProperties": false,
       "properties": {
+        "comment_response_packages": {
+          "default": true,
+          "title": "Comment Response Packages",
+          "type": "boolean"
+        },
         "experimental_conclusions": {
           "default": true,
           "title": "Experimental Conclusions",
@@ -41,6 +46,13 @@
       "enum": [
         "YELLOW",
         "BRIGHT_GREEN",
+        "LIGHT_BLUE",
+        "PINK",
+        "TEAL",
+        "DARK_YELLOW",
+        "GRAY_25",
+        "DARK_BLUE",
+        "RED",
         "VIOLET"
       ],
       "title": "HighlightColor",
@@ -56,6 +68,17 @@
         "reviewer_2": {
           "$ref": "#/$defs/HighlightColor",
           "default": "BRIGHT_GREEN"
+        },
+        "reviewer_3": {
+          "$ref": "#/$defs/HighlightColor",
+          "default": "LIGHT_BLUE"
+        },
+        "reviewer_palette": {
+          "items": {
+            "$ref": "#/$defs/HighlightColor"
+          },
+          "title": "Reviewer Palette",
+          "type": "array"
         },
         "shared_and_general": {
           "$ref": "#/$defs/HighlightColor",

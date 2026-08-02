@@ -18,6 +18,13 @@ SYSTEM_STYLE_PREFIX = 'Scholarly Revision Highlight / '
 HIGHLIGHT_INDEX = {
     HighlightColor.YELLOW: WD_COLOR_INDEX.YELLOW,
     HighlightColor.BRIGHT_GREEN: WD_COLOR_INDEX.BRIGHT_GREEN,
+    HighlightColor.LIGHT_BLUE: WD_COLOR_INDEX.TURQUOISE,
+    HighlightColor.PINK: WD_COLOR_INDEX.PINK,
+    HighlightColor.TEAL: WD_COLOR_INDEX.TEAL,
+    HighlightColor.DARK_YELLOW: WD_COLOR_INDEX.DARK_YELLOW,
+    HighlightColor.GRAY_25: WD_COLOR_INDEX.GRAY_25,
+    HighlightColor.DARK_BLUE: WD_COLOR_INDEX.DARK_BLUE,
+    HighlightColor.RED: WD_COLOR_INDEX.RED,
     HighlightColor.VIOLET: WD_COLOR_INDEX.VIOLET,
 }
 

@@ -66,5 +66,5 @@ def test_optional_manuscript_is_copied_and_hashed_but_not_parsed(tmp_path: Path)
     )
     report = json.loads(result.intake_report_path.read_text(encoding='utf-8'))
     roles = {item['role'] for item in report['input_file_inventory']}
-    assert roles == {'reviewer_comments', 'manuscript'}
+    assert roles == {'reviewer_file', 'manuscript_file'}
     assert report['missing_inputs'] == []

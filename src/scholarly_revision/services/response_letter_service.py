@@ -13,9 +13,14 @@ from scholarly_revision.models.response_package import (
     EditorCoverLetter, LocationStatus, ResponseEntry, ResponsePackage, ResponseStatus,
     ReviewerResponseSection,
 )
-from scholarly_revision.models.reviewer import ReviewerComment, RevisionAction
+from scholarly_revision.models.reviewer import (
+    ReviewerComment,
+    RevisionAction,
+    highlight_for_reviewer_number,
+)
 from scholarly_revision.models.revision_draft import ChangeRecord, RevisionDraft
 from scholarly_revision.services.config_loader import load_project_manifest
+from scholarly_revision.services.comment_approval_service import approved_response_map
 from scholarly_revision.services.gap_analysis_service import read_json, write_json
 from scholarly_revision.services.project_workspace import sha256_file
 from scholarly_revision.tools.location_verifier import verify_locations
@@ -93,6 +98,7 @@ def build_response_drafting_package(project_root: str | Path) -> dict[str, Any]:
     drafts: list[RevisionDraft] = sources['drafts']
     evidence = {str(item.get('evidence_id')): item for item in sources['evidence']}
     references = {str(item.get('reference_id')): item for item in sources['references']}
+    preapproved_responses = approved_response_map(root)
     entries = []
     for number, comment in enumerate(sources['comments'], start=1):
         linked_actions = [item for item in actions if comment.comment_id in item.comment_ids]
@@ -152,14 +158,18 @@ def build_response_drafting_package(project_root: str | Path) -> dict[str, Any]:
             'unresolved_limitations': list(dict.fromkeys(
                 value for item in linked_actions for value in item.unresolved_questions
             )),
-            'author_response': '',
+            'author_response': preapproved_responses.get(comment.comment_id, ''),
             'changes_made': '',
             'related_action_ids': [item.action_id for item in linked_actions],
             'related_change_ids': [item.change_id for item in linked_changes],
             'related_evidence_ids': evidence_ids,
             'related_reference_ids': reference_ids,
             'highlight': comment.highlight.value,
-            'response_status': 'NOT_STARTED',
+            'response_status': (
+                'AUTHOR_REVIEW'
+                if comment.comment_id in preapproved_responses
+                else 'NOT_STARTED'
+            ),
             'location_status': location_status.value,
             'evidence_status': (
                 EvidenceStatus.VERIFIED.value if evidence_ids and all(
@@ -170,7 +180,7 @@ def build_response_drafting_package(project_root: str | Path) -> dict[str, Any]:
                     else EvidenceStatus.NOT_REQUIRED.value
                 )
             ),
-            'author_approved': False,
+            'author_approved': comment.comment_id in preapproved_responses,
             'verification_notes': [],
             'resolution': None,
             'author_justification': None,
@@ -228,12 +238,21 @@ def _strict_entries(
     changes = {item.change_id: item for item in sources['changes']}
     evidence = {str(item.get('evidence_id')): item for item in sources['evidence']}
     references = {str(item.get('reference_id')): item for item in sources['references']}
+    preapproved_responses = approved_response_map(sources['root'])
     entries = []
     for raw in raw_entries:
         model_data = {
             key: value for key, value in raw.items()
             if key in ResponseEntry.model_fields
         }
+        comment_id = str(model_data.get('comment_id', ''))
+        approved_response = preapproved_responses.get(comment_id)
+        if approved_response is not None:
+            if model_data.get('author_response') != approved_response:
+                raise ValueError(
+                    f'{comment_id} response changed after researcher approval'
+                )
+            model_data['author_approved'] = True
         entry = ResponseEntry.model_validate(model_data)
         comment = comments[entry.comment_id]
         if entry.exact_comment != comment.original_comment:
@@ -275,10 +294,14 @@ def import_response_draft(
     for entry in entries:
         grouped[(entry.reviewer_source.value, entry.reviewer_number)].append(entry)
     sections = []
+    reviewer_numbers = sorted({
+        int(number)
+        for source, number in grouped
+        if source == ReviewerSource.REVIEWER.value and number is not None
+    })
     order = [
         (ReviewerSource.EDITOR.value, None),
-        (ReviewerSource.REVIEWER.value, 1),
-        (ReviewerSource.REVIEWER.value, 2),
+        *[(ReviewerSource.REVIEWER.value, number) for number in reviewer_numbers],
         (ReviewerSource.GENERAL.value, None),
     ]
     for source, number in order:
@@ -310,10 +333,14 @@ def import_response_draft(
             'responses below distinguish completed revisions from limitations, '
             'deferred work, and declined requests.'
         ),
-        (
-            'Reviewer 1 revisions are highlighted in Yellow, Reviewer 2 revisions '
-            'in Bright Green, and shared or general revisions in Violet.'
-        ),
+        'Reviewer-specific revisions use the following deterministic legend: '
+        + '; '.join(
+            f'Reviewer {number} = '
+            f'{highlight_for_reviewer_number(number).value.replace("_", " ").title()}'
+            for number in reviewer_numbers
+        )
+        + ('; ' if reviewer_numbers else '')
+        + 'shared or general revisions = Violet.',
     ]
     if (
         (outputs / 'Revised_Manuscript_Highlighted.docx').is_file()

@@ -9,7 +9,10 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from scholarly_revision.models.enums import EvidenceStatus, HighlightColor, ReviewerSource
-from scholarly_revision.models.reviewer import _validated_comment_id
+from scholarly_revision.models.reviewer import (
+    _validated_comment_id,
+    highlight_for_reviewer_number,
+)
 
 
 class ResponseStringEnum(str, Enum):
@@ -109,13 +112,7 @@ class ResponseEntry(BaseModel):
         if self.reviewer_source is ReviewerSource.REVIEWER:
             if self.reviewer_number is None or prefix != f'R{self.reviewer_number}':
                 raise ValueError('reviewer identity must match comment_id')
-            expected = (
-                HighlightColor.YELLOW if self.reviewer_number == 1
-                else HighlightColor.BRIGHT_GREEN if self.reviewer_number == 2
-                else None
-            )
-            if expected is None:
-                raise ValueError('repository response policy supports Reviewer 1 and Reviewer 2')
+            expected = highlight_for_reviewer_number(self.reviewer_number)
         else:
             if self.reviewer_number is not None:
                 raise ValueError('editor/general entries cannot have reviewer_number')

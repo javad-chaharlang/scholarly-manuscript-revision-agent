@@ -13,6 +13,7 @@ from scholarly_revision.models.gap_analysis import GapAnalysisAssessment
 from scholarly_revision.models.reviewer import ReviewerComment, RevisionAction
 from scholarly_revision.models.revision_draft import RevisionDraft
 from scholarly_revision.models.response_package import ResponseEntry, ResponseStatus
+from scholarly_revision.models.comment_approval import ProposedCommentResponse
 from scholarly_revision.models.scientific_audit import AuditIssue, AuditIssueStatus
 from scholarly_revision.services.gap_analysis_service import read_json
 
@@ -205,6 +206,38 @@ class AgentOutputValidationService:
             if any(item.status is not AuditIssueStatus.OPEN for item in records):
                 raise ValueError('semantic QA findings must remain OPEN')
             return {'findings': [item.model_dump(mode='json') for item in records]}
+        if task.task_type is AgentTaskType.PREAPPLICATION_RESPONSE_DRAFT:
+            records = [
+                ProposedCommentResponse.model_validate(item)
+                for item in raw['responses']
+            ]
+            ids = [item.comment_id for item in records]
+            if len(ids) != len(set(ids)) or set(ids) != expected:
+                raise ValueError(
+                    'pre-application response requires one record per requested comment'
+                )
+            approval_path = self.root / 'working' / 'comment_approval_working.json'
+            if not approval_path.is_file():
+                approval_path = self.root / 'working' / 'comment_approval_template.json'
+            approval = _records(approval_path, ('records',))
+            approval_by_comment = {
+                str(item.get('comment_id')): item for item in approval
+            }
+            for item in records:
+                if item.exact_comment != comments[item.comment_id].original_comment:
+                    raise ValueError(f'exact reviewer comment changed: {item.comment_id}')
+                expected_drafts = set(
+                    approval_by_comment.get(item.comment_id, {}).get(
+                        'related_draft_ids', []
+                    )
+                )
+                if set(item.related_draft_ids) != expected_drafts:
+                    raise ValueError(
+                        f'response draft linkage changed: {item.comment_id}'
+                    )
+            return {
+                'responses': [item.model_dump(mode='json') for item in records]
+            }
         if task.task_type is AgentTaskType.RESPONSE_LETTER_DRAFT:
             records = [ResponseEntry.model_validate(item) for item in raw['entries']]
             ids = [item.comment_id for item in records]

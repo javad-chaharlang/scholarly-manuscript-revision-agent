@@ -71,3 +71,14 @@ def test_explicit_combined_heading_is_not_merged() -> None:
     assert [comment.original_comment for comment in comments] == [
         'First exact block.', 'Second exact block.'
     ]
+
+
+def test_third_reviewer_is_parsed_without_a_fixed_reviewer_limit() -> None:
+    records = [
+        DocxRecord(0, 'paragraph', 'Reviewer 3', 'Heading 1'),
+        DocxRecord(1, 'paragraph', 'Comment 1: Add a limitation.', 'Normal'),
+    ]
+    comment = parse_reviewer_comments(records).comments[0]
+    assert comment.comment_id == 'R3-C01'
+    assert comment.reviewer_number == 3
+    assert comment.highlight is HighlightColor.LIGHT_BLUE

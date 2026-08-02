@@ -101,11 +101,6 @@ def parse_reviewer_comments(
         text: str | None = None,
         manual: bool = False,
     ) -> _CommentBlock:
-        if source is ReviewerSource.REVIEWER and reviewer_number not in {1, 2}:
-            raise ReviewerParseError(
-                'repository highlight policy supports only Reviewer 1 and '
-                'Reviewer 2 during deterministic intake'
-            )
         parts = [text] if text is not None and text != '' else []
         return _CommentBlock(
             source=source,
@@ -186,11 +181,6 @@ def parse_reviewer_comments(
                 finish_current()
                 context_source = ReviewerSource.REVIEWER
                 context_reviewer = int(reviewer_heading.group('reviewer'))
-                if context_reviewer not in {1, 2}:
-                    raise ReviewerParseError(
-                        'repository highlight policy supports only Reviewer 1 '
-                        'and Reviewer 2 during deterministic intake'
-                    )
                 continue
 
             source_heading = _EDITOR_GENERAL_HEADING.fullmatch(line)

@@ -10,7 +10,7 @@ from scholarly_revision.models.agent_context import (
     AgentContextManifest, ContextManuscriptSection, ContextPolicy,
     ContextReviewerComment,
 )
-from scholarly_revision.models.agent_task import AgentTask
+from scholarly_revision.models.agent_task import AgentTask, AgentTaskType
 from scholarly_revision.services.config_loader import load_project_manifest
 from scholarly_revision.services.gap_analysis_service import read_json
 from scholarly_revision.services.project_workspace import sha256_file
@@ -176,12 +176,20 @@ class AgentContextService:
             plan = _json_or(self.root / 'working' / 'revision_plan.json', {'actions': []})
             changes = _json_or(self.root / 'audit' / 'change_log.json', {'changes': []})
             action_ids = set(task.related_action_ids)
-            response_input = _json_or(
-                self.root / 'working' / 'response_drafting_package.json',
-                {'entries': []},
-            )
+            if task.task_type is AgentTaskType.PREAPPLICATION_RESPONSE_DRAFT:
+                preapplication_path = self.root / 'working' / 'comment_approval_working.json'
+                if not preapplication_path.is_file():
+                    preapplication_path = self.root / 'working' / 'comment_approval_template.json'
+                response_input = _json_or(preapplication_path, {'records': []})
+                response_values = response_input.get('records', [])
+            else:
+                response_input = _json_or(
+                    self.root / 'working' / 'response_drafting_package.json',
+                    {'entries': []},
+                )
+                response_values = response_input.get('entries', [])
             response_entries = [
-                item for item in response_input.get('entries', [])
+                item for item in response_values
                 if isinstance(item, dict)
                 and item.get('comment_id') in task.related_comment_ids
             ]

@@ -25,6 +25,29 @@ COMMENT_ID_PATTERN = re.compile(
 )
 
 
+# Stable reviewer IDs are authoritative. Colors are deterministic visual aids
+# and may repeat only after the native Word palette is exhausted.
+REVIEWER_HIGHLIGHT_PALETTE: tuple[HighlightColor, ...] = (
+    HighlightColor.YELLOW,
+    HighlightColor.BRIGHT_GREEN,
+    HighlightColor.LIGHT_BLUE,
+    HighlightColor.PINK,
+    HighlightColor.TEAL,
+    HighlightColor.DARK_YELLOW,
+    HighlightColor.GRAY_25,
+    HighlightColor.DARK_BLUE,
+    HighlightColor.RED,
+)
+
+
+def highlight_for_reviewer_number(reviewer_number: int) -> HighlightColor:
+    if reviewer_number < 1:
+        raise ValueError('reviewer_number must be at least 1')
+    return REVIEWER_HIGHLIGHT_PALETTE[
+        (reviewer_number - 1) % len(REVIEWER_HIGHLIGHT_PALETTE)
+    ]
+
+
 def _validated_comment_id(value: str) -> str:
     if not COMMENT_ID_PATTERN.fullmatch(value):
         raise ValueError(
@@ -44,10 +67,8 @@ def _highlight_for_comment_data(data: dict[str, Any]) -> HighlightColor | None:
         return HighlightColor.VIOLET
     if source == ReviewerSource.REVIEWER.value:
         reviewer_number = data.get('reviewer_number')
-        if reviewer_number == 1:
-            return HighlightColor.YELLOW
-        if reviewer_number == 2:
-            return HighlightColor.BRIGHT_GREEN
+        if reviewer_number is not None:
+            return highlight_for_reviewer_number(int(reviewer_number))
     return None
 
 
@@ -55,10 +76,10 @@ def _highlight_for_action_ids(comment_ids: list[str]) -> HighlightColor | None:
     sources = {comment_id.split('-', 1)[0] for comment_id in comment_ids}
     if not sources:
         return None
-    if sources == {'R1'}:
-        return HighlightColor.YELLOW
-    if sources == {'R2'}:
-        return HighlightColor.BRIGHT_GREEN
+    if len(sources) == 1:
+        source = next(iter(sources))
+        if source.startswith('R') and source[1:].isdigit():
+            return highlight_for_reviewer_number(int(source[1:]))
     return HighlightColor.VIOLET
 
 

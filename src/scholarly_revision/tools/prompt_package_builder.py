@@ -10,6 +10,7 @@ from typing import Any
 
 from scholarly_revision.models.agent_context import AgentContextManifest
 from scholarly_revision.models.agent_task import AgentTask, AgentTaskType
+from scholarly_revision.models.comment_approval import ProposedCommentResponse
 from scholarly_revision.models.gap_analysis import GapAnalysisAssessment
 from scholarly_revision.models.reviewer import ReviewerComment, RevisionAction
 from scholarly_revision.models.revision_draft import RevisionDraft
@@ -59,6 +60,8 @@ def output_schema_for(task_type: AgentTaskType) -> dict[str, Any]:
         return _array_schema('actions', RevisionAction)
     if task_type is AgentTaskType.REVISION_TEXT_DRAFT:
         return _array_schema('drafts', RevisionDraft)
+    if task_type is AgentTaskType.PREAPPLICATION_RESPONSE_DRAFT:
+        return _array_schema('responses', ProposedCommentResponse)
     if task_type is AgentTaskType.SEMANTIC_QA_REVIEW:
         return _array_schema('findings', AuditIssue)
     if task_type is AgentTaskType.RESPONSE_LETTER_DRAFT:
@@ -114,7 +117,8 @@ missing evidence and uncertainty. Unsupported numeric or experimental claims are
 TRACEABILITY: Preserve exact reviewer comments and all stable IDs. Do not merge or reorder them.
 STATUS: Generated content is a draft. Never return APPROVED, APPLIED, VERIFIED, IMPORTED,
 or any state implying author approval or completed manuscript mutation.
-HIGHLIGHTS: Reviewer 1=YELLOW; Reviewer 2=BRIGHT_GREEN; shared/general=VIOLET.
+HIGHLIGHTS: Preserve the supplied reviewer ID and highlight. Reviewer identity is
+canonical; never merge later reviewers because a visual color repeats.
 OUTPUT: Return only one JSON object conforming exactly to OUTPUT SCHEMA, with no prose,
 Markdown fences, commentary, or additional fields.
 '''.strip()

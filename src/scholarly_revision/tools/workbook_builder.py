@@ -25,7 +25,10 @@ from scholarly_revision.models.enums import (
     RevisionOperation,
     RevisionStatus,
 )
-from scholarly_revision.models.reviewer import ReviewerComment
+from scholarly_revision.models.reviewer import (
+    ReviewerComment,
+    highlight_for_reviewer_number,
+)
 from scholarly_revision.models.gap_analysis import GapAnalysisAssessment
 from scholarly_revision.models.reviewer import RevisionAction
 from scholarly_revision.models.revision_draft import ChangeRecord, RevisionDraft
@@ -159,9 +162,21 @@ FINAL_RESPONSE_MAP_HEADERS = (
     'Author Approval', 'Verification Status', 'Unresolved Issues',
 )
 
+COMMENT_APPROVAL_HEADERS = (
+    'Preapplication Decision', 'Decision Maker', 'Decision At',
+    'Approved Draft IDs', 'Approved Response',
+)
+
 _HIGHLIGHT_HEX = {
     HighlightColor.YELLOW.value: 'FFFFFF00',
     HighlightColor.BRIGHT_GREEN.value: 'FF00FF00',
+    HighlightColor.LIGHT_BLUE.value: 'FFD9EAF7',
+    HighlightColor.PINK.value: 'FFFCE4D6',
+    HighlightColor.TEAL.value: 'FFDDEBF7',
+    HighlightColor.DARK_YELLOW.value: 'FFFFD966',
+    HighlightColor.GRAY_25.value: 'FFD9E1F2',
+    HighlightColor.DARK_BLUE.value: 'FF9DC3E6',
+    HighlightColor.RED.value: 'FFF4CCCC',
     HighlightColor.VIOLET.value: 'FFEE82EE',
 }
 _HEADER_FILL = PatternFill('solid', fgColor='D9E1F2')
@@ -289,13 +304,19 @@ def _reviewer_row(comment: ReviewerComment) -> list[Any]:
     ]
 
 
-def _build_dashboard(workbook: Workbook) -> None:
+def _build_dashboard(workbook: Workbook, reviewer_numbers: list[int]) -> None:
     sheet = workbook['Dashboard']
     sheet.append(['Metric', 'Value'])
     metrics = [
         ('Total comment count', '=COUNTA(Reviewer_Comments!A2:A1000)'),
-        ('Count by Reviewer 1', '=COUNTIFS(Reviewer_Comments!B2:B1000,"REVIEWER",Reviewer_Comments!C2:C1000,1)'),
-        ('Count by Reviewer 2', '=COUNTIFS(Reviewer_Comments!B2:B1000,"REVIEWER",Reviewer_Comments!C2:C1000,2)'),
+        *[
+            (
+                f'Count by Reviewer {number}',
+                '=COUNTIFS(Reviewer_Comments!B2:B1000,"REVIEWER",'
+                f'Reviewer_Comments!C2:C1000,{number})',
+            )
+            for number in reviewer_numbers
+        ],
         ('Count by Editor/General', '=COUNTIF(Reviewer_Comments!B2:B1000,"EDITOR")+COUNTIF(Reviewer_Comments!B2:B1000,"GENERAL")'),
         ('Count requiring manual review', '=COUNTIF(Reviewer_Comments!R2:R1000,TRUE)'),
         ('Completion percentage', '=IF(B2=0,0,COUNTIF(Reviewer_Comments!M2:M1000,"VERIFIED")/B2)'),
@@ -317,7 +338,10 @@ def _build_dashboard(workbook: Workbook) -> None:
     ]
     for metric in metrics:
         sheet.append(metric)
-    sheet['B7'].number_format = '0.0%'
+    for row in range(2, sheet.max_row + 1):
+        if sheet.cell(row, 1).value == 'Completion percentage':
+            sheet.cell(row, 2).number_format = '0.0%'
+            break
 
     sheet.append([])
     sheet.append(['Count by status', 'Count'])
@@ -340,11 +364,11 @@ def _build_dashboard(workbook: Workbook) -> None:
     for cell in (sheet['D1'], sheet['E1']):
         cell.font = Font(bold=True)
         cell.fill = _HEADER_FILL
-    legend = (
-        ('YELLOW', 'Reviewer 1'),
-        ('BRIGHT_GREEN', 'Reviewer 2'),
-        ('VIOLET', 'Editor, general, and shared'),
-    )
+    legend = [
+        (highlight_for_reviewer_number(number).value, f'Reviewer {number}')
+        for number in reviewer_numbers
+    ]
+    legend.append(('VIOLET', 'Editor, general, and shared'))
     for row, (highlight, assignment) in enumerate(legend, start=2):
         sheet.cell(row, 4, highlight).fill = PatternFill('solid', fgColor=_HIGHLIGHT_HEX[highlight])
         sheet.cell(row, 5, assignment)
@@ -399,7 +423,14 @@ def build_revision_workbook(
         if sheet_name != 'Project_Info':
             workbook[sheet_name].append(headers)
 
-    _build_dashboard(workbook)
+    _build_dashboard(
+        workbook,
+        sorted({
+            int(comment.reviewer_number)
+            for comment in validated_comments
+            if comment.reviewer_number is not None
+        }),
+    )
     _write_enum_lists(workbook)
     _add_validations(workbook)
 
@@ -763,6 +794,91 @@ def _append_missing_headers(worksheet: Any, headers: tuple[str, ...]) -> dict[st
         str(cell.value) for cell in worksheet[1] if cell.value is not None
     ))
     return current
+
+
+def update_comment_approval_workbook(
+    path: str | Path,
+    approval_payload: Mapping[str, Any],
+    comments: Iterable[ReviewerComment | dict[str, Any]],
+) -> Path:
+    '''Write every researcher comment-package decision into Revision_Master.xlsx.'''
+
+    destination = Path(path)
+    validated_comments = {
+        item.comment_id: item
+        for item in (ReviewerComment.model_validate(value) for value in comments)
+    }
+    records = approval_payload.get('records', [])
+    if not isinstance(records, list):
+        raise ValueError('comment approval payload must contain a records list')
+    workbook = load_workbook(destination)
+    response = workbook['Response_Map']
+    headers = _append_missing_headers(response, COMMENT_APPROVAL_HEADERS)
+    rows = {
+        str(response.cell(row, headers['Comment ID']).value): row
+        for row in range(2, response.max_row + 1)
+        if response.cell(row, headers['Comment ID']).value
+    }
+    for record in records:
+        comment_id = str(record.get('comment_id', ''))
+        comment = validated_comments.get(comment_id)
+        if comment is None:
+            raise ValueError(f'unknown workbook comment approval ID: {comment_id}')
+        row = rows.get(comment_id)
+        if row is None:
+            row = response.max_row + 1
+            rows[comment_id] = row
+            response.cell(row, headers['Comment ID'], comment_id)
+        approved_response = record.get('approved_response')
+        proposed_response = record.get('proposed_response')
+        decision = record.get('decision') or 'AWAITING_RESEARCHER_APPROVAL'
+        values = {
+            'Response ID': record.get('approval_id'),
+            'Exact Comment Verified': True,
+            'Response Draft': approved_response or proposed_response,
+            'Changes Made': _join(record.get('related_draft_ids', [])),
+            'Status': decision,
+            'Highlight': comment.highlight.value,
+            'Consistency Verified': False,
+            'Notes': record.get('author_note'),
+            'Preapplication Decision': decision,
+            'Decision Maker': record.get('decision_maker'),
+            'Decision At': record.get('decision_timestamp'),
+            'Approved Draft IDs': _join(record.get('approved_draft_ids', [])),
+            'Approved Response': approved_response,
+        }
+        for header, value in values.items():
+            if header in headers:
+                response.cell(row, headers[header], value)
+        response.cell(row, headers['Highlight']).fill = PatternFill(
+            'solid', fgColor=_HIGHLIGHT_HEX[comment.highlight.value]
+        )
+    dashboard = workbook['Dashboard']
+    metric_rows = {
+        str(dashboard.cell(row, 1).value): row
+        for row in range(1, dashboard.max_row + 1)
+        if dashboard.cell(row, 1).value
+    }
+    metrics = {
+        'Comment packages completed': sum(
+            bool(record.get('decision')) for record in records
+        ),
+        'Comment packages pending': sum(
+            not bool(record.get('decision')) for record in records
+        ),
+    }
+    for metric, value in metrics.items():
+        row = metric_rows.get(metric)
+        if row is None:
+            row = dashboard.max_row + 1
+            dashboard.cell(row, 1, metric)
+        dashboard.cell(row, 2, value)
+    _format_body(
+        response,
+        tuple(str(cell.value) for cell in response[1] if cell.value is not None),
+    )
+    workbook.save(destination)
+    return destination
 
 
 def update_finalization_workbook(

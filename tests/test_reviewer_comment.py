@@ -26,7 +26,9 @@ def comment_data(**overrides: object) -> dict[str, object]:
     return data
 
 
-@pytest.mark.parametrize('comment_id', ['R1-C01', 'R2-C03', 'ED-C01', 'GEN-C01'])
+@pytest.mark.parametrize(
+    'comment_id', ['R1-C01', 'R2-C03', 'R3-C02', 'R10-C07', 'ED-C01', 'GEN-C01']
+)
 def test_valid_comment_ids(comment_id: str) -> None:
     prefix, sequence = comment_id.split('-C')
     if prefix.startswith('R'):
@@ -68,6 +70,16 @@ def test_automatic_reviewer_highlights() -> None:
     )
     assert reviewer_1.highlight is HighlightColor.YELLOW
     assert reviewer_2.highlight is HighlightColor.BRIGHT_GREEN
+    reviewer_3 = ReviewerComment.model_validate(comment_data(
+        comment_id='R3-C01', reviewer_number=3,
+        reviewer_source=ReviewerSource.REVIEWER,
+    ))
+    reviewer_10 = ReviewerComment.model_validate(comment_data(
+        comment_id='R10-C01', reviewer_number=10,
+        reviewer_source=ReviewerSource.REVIEWER,
+    ))
+    assert reviewer_3.highlight is HighlightColor.LIGHT_BLUE
+    assert reviewer_10.highlight is HighlightColor.YELLOW
 
 
 def test_conflicting_highlight_is_rejected() -> None:

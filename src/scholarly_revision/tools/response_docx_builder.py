@@ -20,11 +20,25 @@ from scholarly_revision.models.response_package import ResponseEntry, ResponsePa
 _COLORS = {
     HighlightColor.YELLOW: WD_COLOR_INDEX.YELLOW,
     HighlightColor.BRIGHT_GREEN: WD_COLOR_INDEX.BRIGHT_GREEN,
+    HighlightColor.LIGHT_BLUE: WD_COLOR_INDEX.TURQUOISE,
+    HighlightColor.PINK: WD_COLOR_INDEX.PINK,
+    HighlightColor.TEAL: WD_COLOR_INDEX.TEAL,
+    HighlightColor.DARK_YELLOW: WD_COLOR_INDEX.DARK_YELLOW,
+    HighlightColor.GRAY_25: WD_COLOR_INDEX.GRAY_25,
+    HighlightColor.DARK_BLUE: WD_COLOR_INDEX.DARK_BLUE,
+    HighlightColor.RED: WD_COLOR_INDEX.RED,
     HighlightColor.VIOLET: WD_COLOR_INDEX.VIOLET,
 }
 _SHADING = {
     HighlightColor.YELLOW: 'FFF2CC',
     HighlightColor.BRIGHT_GREEN: 'E2F0D9',
+    HighlightColor.LIGHT_BLUE: 'D9EAF7',
+    HighlightColor.PINK: 'FCE4D6',
+    HighlightColor.TEAL: 'DDEBF7',
+    HighlightColor.DARK_YELLOW: 'FFD966',
+    HighlightColor.GRAY_25: 'D9E1F2',
+    HighlightColor.DARK_BLUE: '9DC3E6',
+    HighlightColor.RED: 'F4CCCC',
     HighlightColor.VIOLET: 'E4DFEC',
 }
 _FIELD_LABELS = (
